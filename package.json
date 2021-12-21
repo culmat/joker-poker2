@@ -28,7 +28,9 @@
     "@vue/eslint-config-typescript": "^7.0.0",
     "eslint": "^7.11.0",
     "eslint-plugin-vue": "^7.0.0",
-    "typescript": "^4.4.4"
+    "naive-ui": "^2.23.1",
+    "typescript": "^4.4.4",
+    "vfonts": "^0.1.0"
   },
   "workspaces": {
     "nohoist": [

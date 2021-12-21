@@ -1,10 +1,33 @@
 <template>
-<pre>
-  {{shared}}
-</pre>
+
+         
+
+       <n-layout style="height: 360px;">
+    <n-layout-header style="height: 64px; padding: 24px;" bordered
+      >Yiheyuan Road</n-layout-header
+    >
+    <n-layout position="absolute" style="top: 64px;">
+      <n-layout content-style="padding: 24px;" :native-scrollbar="false">
+         <pre>
+            {{shared}}
+          </pre> 
+          <p
+                v-for="u in shared.users"
+                :key="u"
+              >{{u.name}}
+              </p>      
+          <n-button>naive-ui</n-button> 
+      </n-layout>
+    </n-layout>
+  </n-layout>
+
+
 </template>
 
 <style>
+.n-layout-header{
+  background-color: lightgrey;
+}
 </style>
 
 <script lang="ts">
@@ -26,9 +49,10 @@ if(urlTokens.length > 1 && urlTokens[1].length >0) {
 
 interface Indentified {id:string}
 interface User extends Indentified { name: string; createdAt: Date; icon: string }
-interface SharedState {users : User[]}
 
-const store = syncedStore({ users: [] as User[] }) as SharedState;
+const store = syncedStore({ 
+    users : [] as User[]
+  });
 
 const doc = getYjsValue(store) as any;
 const webrtcProvider = new WebrtcProvider(id, doc);
@@ -62,11 +86,13 @@ awareness.setLocalState({id: myID});
 export default defineComponent({
   data() {
     return {
-      shared: store as SharedState
+      shared: store
     };
   },
 
-  created(){ document.title = "Joker Poker"    },
+  created(){ 
+    document.title = "Joker Poker"
+  },
   
   // computed properties
   // http://vuejs.org/guide/computed.html
@@ -91,7 +117,7 @@ export default defineComponent({
       });
     },
     removeUser(id: string) {
-      filterArray(this.shared.users, (u) => u.id != id);
+        filterArray(this.shared.users, (u) => u.id != id);
     },
   },
 });
