@@ -1,72 +1,10 @@
 <template>
-<link rel="stylesheet" href="https://unpkg.com/todomvc-app-css@2.2.0/index.css" />
-  <section class="todoapp">
-    <header class="header">
-      <h1>todos</h1>
-      <input
-        class="new-todo"
-        autofocus
-        autocomplete="off"
-        placeholder="What needs to be done?"
-        v-model="newTodo"
-        @keyup.enter="addTodo"
-      />
-    </header>
-    <section class="main" v-show="shared.todos.length" v-cloak>
-      <input id="toggle-all" class="toggle-all" type="checkbox" v-model="allDone" />
-      <label for="toggle-all"></label>
-      <ul class="todo-list">
-        <li
-          v-for="todo in filteredTodos"
-          class="todo"
-          :key="todo.id"
-          :class="{ completed: todo.completed, editing: todo == editingTodo }"
-        >
-          <div class="view">
-            <input class="toggle" type="checkbox" v-model="todo.completed" />
-            <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-            <button class="destroy" @click="removeTodo(todo)"></button>
-          </div>
-          <input
-            class="edit"
-            type="text"
-            v-model="todo.title"
-            v-todo-focus="todo == editingTodo"
-            @blur="doneEdit(todo)"
-            @keyup.enter="doneEdit(todo)"
-            @keyup.esc="cancelEdit(todo)"
-          />
-        </li>
-      </ul>
-    </section>
-    <footer class="footer" v-show="shared.todos.length" v-cloak>
-      <span class="todo-count">
-        <strong>{{ remaining }}</strong> {{ pluralize(remaining) }} left
-      </span>
-      <ul class="filters">
-        <li>
-          <a href="#/all" :class="{ selected: visibility == 'all' }">All</a>
-        </li>
-        <li>
-          <a href="#/active" :class="{ selected: visibility == 'active' }">Active</a>
-        </li>
-        <li>
-          <a href="#/completed" :class="{ selected: visibility == 'completed' }">Completed</a>
-        </li>
-      </ul>
-      <button class="clear-completed" @click="removeCompleted" v-show="shared.todos.length > remaining">
-        Clear completed
-      </button>
-    </footer>
-  </section>
-  <footer class="info">
-  </footer>
+<pre>
+  {{shared}}
+</pre>
 </template>
 
 <style>
-[v-cloak] {
-  display: none;
-}
 </style>
 
 <script lang="ts">
@@ -87,10 +25,10 @@ if(urlTokens.length > 1 && urlTokens[1].length >0) {
 
 
 interface Indentified {id:string}
-type Todo = { completed: boolean; title: string };
-//interface User extends Indentified { name: string; createdAt: Date; icon: string }
+interface User extends Indentified { name: string; createdAt: Date; icon: string }
+interface SharedState {users : User[]}
 
-const store = syncedStore({ todos: [] as Todo[] });
+const store = syncedStore({ users: [] as User[] }) as SharedState;
 
 const doc = getYjsValue(store) as any;
 const webrtcProvider = new WebrtcProvider(id, doc);
@@ -121,28 +59,10 @@ console.log("awareness.getLocalState", awareness.getLocalState());
 // We update our "user" field to propagate relevant user information.
 awareness.setLocalState({id: myID});
 
-// visibility filters
-const filters = {
-  all(todos: Todo[]) {
-    return todos;
-  },
-  active(todos: Todo[]) {
-    return todos.filter((todo) => !todo.completed);
-  },
-  completed(todos: Todo[]) {
-    return todos.filter((todo) => todo.completed);
-  },
-};
-
-
 export default defineComponent({
   data() {
     return {
-      shared: store as { todos: Todo[] },
-      newTodo: "",
-      editingTodo: null as null | Todo,
-      visibility: "all" as "all" | "active" | "completed",
-      beforeEditCache: "",
+      shared: store as SharedState
     };
   },
 
@@ -151,21 +71,8 @@ export default defineComponent({
   // computed properties
   // http://vuejs.org/guide/computed.html
   computed: {
-    filteredTodos() {
-      return filters[(this as any).visibility as "all" | "active" | "completed"]((this as any).shared.todos as Todo[]);
-    },
-    remaining() {
-      return filters.active((this as any).shared.todos).length;
-    },
-    allDone: {
-      get() {
-        return (this as any).remaining === 0;
-      },
-      set(value) {
-        (this.shared.todos as Todo[]).forEach((todo) => {
-          todo.completed = value;
-        });
-      },
+    foo() {
+      return 'foo';
     },
   },
 
@@ -175,58 +82,16 @@ export default defineComponent({
     pluralize(n: number) {
       return n === 1 ? "item" : "items";
     },
-    addTodo() {
-      const value = this.newTodo && this.newTodo.trim();
-      if (!value) {
-        return;
-      }
-      this.shared.todos.push({
-        title: value,
-        completed: false,
+    addUser(name : string) {
+      this.shared.users.push({
+        name: name,
+        id : myID,
+        createdAt : new Date(),
+        icon : ''
       });
-      this.newTodo = "";
     },
-
-    removeTodo(todo: Todo) {
-      this.shared.todos.splice(this.shared.todos.indexOf(todo), 1);
-    },
-
-    editTodo(todo: Todo) {
-      this.beforeEditCache = todo.title;
-      this.editingTodo = todo;
-    },
-
-    doneEdit(todo: Todo) {
-      if (!this.editingTodo) {
-        return;
-      }
-      this.editingTodo = null;
-      todo.title = todo.title.trim();
-      if (!todo.title) {
-        this.removeTodo(todo);
-      }
-    },
-
-    cancelEdit(todo: Todo) {
-      this.editingTodo = null;
-      todo.title = this.beforeEditCache;
-    },
-
-    removeCompleted() {
-      filterArray(this.shared.todos, (t) => !t.completed);
-    },
-  },
-
-  // a custom directive to wait for the DOM to be updated
-  // before focusing on the input field.
-  // http://vuejs.org/guide/custom-directive.html
-  directives: {
-    "todo-focus": {
-      updated(el, binding) {
-        if (binding.value) {
-          el.focus();
-        }
-      },
+    removeUser(id: string) {
+      filterArray(this.shared.users, (u) => u.id != id);
     },
   },
 });

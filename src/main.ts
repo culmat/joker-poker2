@@ -21,5 +21,12 @@ function onHashChange() {
   }
 }
 
-window.addEventListener("hashchange", onHashChange);
+declare global {
+  interface Window {
+      vm:any;
+  }
+}
+window.vm = vm;
+
+//window.addEventListener("hashchange", onHashChange);
 //onHashChange();
