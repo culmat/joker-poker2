@@ -14,4 +14,8 @@ The code is based on the [official Vue 3 Todo MVC example](https://v3.vuejs.org/
     npm install
     npm run serve
 
+# Building
+
+    npm run package
+
 🔥 Make sure to open multiple browsers to see the app syncing automatically.

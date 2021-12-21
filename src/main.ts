@@ -22,6 +22,4 @@ function onHashChange() {
 }
 
 window.addEventListener("hashchange", onHashChange);
-onHashChange();
-
-console.log("theApp", app);
+//onHashChange();

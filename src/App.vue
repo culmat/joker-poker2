@@ -1,4 +1,5 @@
 <template>
+<link rel="stylesheet" href="https://unpkg.com/todomvc-app-css@2.2.0/index.css" />
   <section class="todoapp">
     <header class="header">
       <h1>todos</h1>
@@ -59,9 +60,6 @@
     </footer>
   </section>
   <footer class="info">
-    <p>Double-click to edit a todo</p>
-    <p>Written by <a href="http://evanyou.me">Evan You</a></p>
-    <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
   </footer>
 </template>
 
@@ -76,16 +74,27 @@ import { defineComponent } from "vue";
 import { syncedStore, getYjsValue, filterArray } from "@syncedstore/core";
 import { WebrtcProvider } from "y-webrtc";
 import { IndexeddbPersistence } from "y-indexeddb";
+import { uuidv4 } from "lib0/random";
 
+const urlTokens = document.URL.split('/~/');
+var id : string;
+if(urlTokens.length > 1 && urlTokens[1].length >0) {
+  id = urlTokens[1].split('#')[0];
+} else {
+  id = uuidv4()
+  window.history.pushState({ }, '', urlTokens[0]+'~/'+ id);
+}
+
+
+interface Indentified {id:string}
 type Todo = { completed: boolean; title: string };
-type User = { name: string; createdAt: Date; icon: string };
-type AwarenesState = { user: User };
+//interface User extends Indentified { name: string; createdAt: Date; icon: string }
 
 const store = syncedStore({ todos: [] as Todo[] });
 
 const doc = getYjsValue(store) as any;
-const webrtcProvider = new WebrtcProvider("id", doc);
-const provider = new IndexeddbPersistence("id", doc);
+const webrtcProvider = new WebrtcProvider(id, doc);
+new IndexeddbPersistence(id, doc);
 
 // All of our network providers implement the awareness crdt
 const awareness = webrtcProvider.awareness;
@@ -96,19 +105,21 @@ awareness.on("change", (changes: any) => {
   // Whenever somebody updates their awareness information,
   // we log all awareness information from all users.
   console.log(changes);
-  const awarenesStates = Array.from(awareness.getStates().values()) as AwarenesState[];
+  const awarenesStates = Array.from(awareness.getStates().values()) as Indentified[];
   console.log(awarenesStates);
 });
 
+var myID = localStorage.getItem(id) as string;
+if(!myID) {
+  myID = uuidv4();
+  localStorage.setItem(id,myID);
+  //myself = { id:uuidv4(), name: '', createdAt: new Date(), icon: '' };
+}
+console.log("awareness.getLocalState", awareness.getLocalState());
+
 // You can think of your own awareness information as a key-value store.
 // We update our "user" field to propagate relevant user information.
-awareness.setLocalStateField("user", {
-  // Define a print name that should be displayed
-  name: "Emmanuelle Charpentier",
-  time: new Date(),
-  // Define a color that should be associated to the user:
-  color: "#ffb61e", // should be a hex color
-});
+awareness.setLocalState({id: myID});
 
 // visibility filters
 const filters = {
@@ -123,6 +134,7 @@ const filters = {
   },
 };
 
+
 export default defineComponent({
   data() {
     return {
@@ -134,6 +146,8 @@ export default defineComponent({
     };
   },
 
+  created(){ document.title = "Joker Poker"    },
+  
   // computed properties
   // http://vuejs.org/guide/computed.html
   computed: {
