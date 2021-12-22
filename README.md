@@ -12,7 +12,7 @@ The code is based on the [official Vue 3 Todo MVC example](https://v3.vuejs.org/
 # Running
 
     npm install
-    npm run serve
+    npm run serve ( you may need export NODE_OPTIONS=--openssl-legacy-provider )
 
 # Building
 
