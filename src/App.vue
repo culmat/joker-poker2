@@ -2,9 +2,9 @@
 
          
 
-       <n-layout style="height: 360px;">
+       <n-layout style="height: 660px;">
     <n-layout-header style="height: 64px; padding: 24px;" bordered
-      >Yiheyuan Road</n-layout-header
+      > {{shared.jp.title}}</n-layout-header
     >
     <n-layout position="absolute" style="top: 64px;">
       <n-layout content-style="padding: 24px;" :native-scrollbar="false">
@@ -12,7 +12,7 @@
             {{shared}}
           </pre> 
           <p
-                v-for="u in shared.users"
+                v-for="u in shared.jp.users"
                 :key="u"
               >{{u.name}}
               </p>      
@@ -49,9 +49,13 @@ if(urlTokens.length > 1 && urlTokens[1].length >0) {
 
 interface Indentified {id:string}
 interface User extends Indentified { name: string; createdAt: Date; icon: string }
+type JokerPoker = {
+   title : string,
+   users : User[]
+}
 
 const store = syncedStore({ 
-    users : [] as User[]
+    jp : {} as JokerPoker
   });
 
 const doc = getYjsValue(store) as any;
@@ -91,7 +95,7 @@ export default defineComponent({
   },
 
   created(){ 
-    document.title = "Joker Poker"
+    if(!store.jp.title) store.jp.title = "Joker Poker"
   },
   
   // computed properties
@@ -102,14 +106,27 @@ export default defineComponent({
     },
   },
 
+  watch : {
+      "shared.jp.title" : function(val) {
+        this.shared.jp.title = val;
+        document.title = val;
+      }
+  },
+
   // methods that implement data logic.
   // note there's no DOM manipulation here at all.
   methods: {
     pluralize(n: number) {
       return n === 1 ? "item" : "items";
     },
+
+    getUsers() : User[] {
+      if (!this.shared.jp.users) this.shared.jp.users = []
+      return this.shared.jp.users;
+    },
+
     addUser(name : string) {
-      this.shared.users.push({
+      this.getUsers().push({
         name: name,
         id : myID,
         createdAt : new Date(),
@@ -117,7 +134,10 @@ export default defineComponent({
       });
     },
     removeUser(id: string) {
-        filterArray(this.shared.users, (u) => u.id != id);
+        filterArray(this.getUsers(), (u) => u.id != id);
+    },
+    setTile(title: string) {
+        this.shared.jp.title = title;
     },
   },
 });
