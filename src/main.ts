@@ -16,7 +16,8 @@ import {
   NLayoutHeader,
   NLayoutFooter,
   NLayoutSider,
-  NH2
+  NH2,
+  NInput
 } from 'naive-ui'
 
 
@@ -31,7 +32,8 @@ app.use(create({
     NLayoutHeader,
     NLayoutFooter,
     NLayoutSider,
-    NH2
+    NH2,
+    NInput
   ]
 }));
 const vm = app.mount("#app") as any;

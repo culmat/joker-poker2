@@ -15,7 +15,8 @@
                 v-for="u in shared.jp.users"
                 :key="u"
               >{{u.name}}
-              </p>      
+              </p>
+              <n-input v-model:value="shared.jp.title" type="text" placeholder="Title" />     
           <n-button>naive-ui</n-button> 
       </n-layout>
     </n-layout>
@@ -36,6 +37,7 @@ import { syncedStore, getYjsValue, filterArray } from "@syncedstore/core";
 import { WebrtcProvider } from "y-webrtc";
 import { IndexeddbPersistence } from "y-indexeddb";
 import { uuidv4 } from "lib0/random";
+import * as awarenessProtocol from "y-protocols/awareness";
 
 const urlTokens = document.URL.split('/~/');
 var id : string;
@@ -48,7 +50,7 @@ if(urlTokens.length > 1 && urlTokens[1].length >0) {
 
 
 interface Indentified {id:string}
-interface User extends Indentified { name: string; createdAt: Date; icon: string }
+interface User extends Indentified { name: string; createdAt: number; icon: string }
 type JokerPoker = {
    title : string,
    users : User[]
@@ -58,9 +60,28 @@ const store = syncedStore({
     jp : {} as JokerPoker
   });
 
-const doc = getYjsValue(store) as any;
-const webrtcProvider = new WebrtcProvider(id, doc);
-new IndexeddbPersistence(id, doc);
+
+const ydoc = getYjsValue(store) as any;
+var busyStart = 0;
+ydoc.on('beforeAllTransactions', () => {
+  console.log("ydoc busy");
+  busyStart = new Date().getTime();
+  });
+ydoc.on('afterAllTransactions', () => {
+  console.log("ydoc calm after", new Date().getTime() - busyStart);
+});
+
+const webrtcProvider = new WebrtcProvider(id, ydoc, {
+  // see https://github.com/yjs/y-webrtc#user-content-api
+  signaling: ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
+  password: id.split("").reverse().join("!"),
+  awareness: new awarenessProtocol.Awareness(ydoc),
+  maxConns: 27 +  Math.floor(Math.random() * 15),
+  filterBcConns: true,
+  peerOpts: {}
+});
+
+new IndexeddbPersistence(id, ydoc);
 
 // All of our network providers implement the awareness crdt
 const awareness = webrtcProvider.awareness;
@@ -95,14 +116,21 @@ export default defineComponent({
   },
 
   created(){ 
-    if(!store.jp.title) store.jp.title = "Joker Poker"
+    this.init();
   },
   
   // computed properties
   // http://vuejs.org/guide/computed.html
   computed: {
-    foo() {
-      return 'foo';
+
+    myself() : User {
+      var users = this.getUsers();
+      var me = users.find(u => u.id == myID);
+      if(!me){
+        me = {name :'', createdAt : new Date().getTime(), icon : '', id : myID };
+        users.push(me);
+      }
+      return me;
     },
   },
 
@@ -116,8 +144,18 @@ export default defineComponent({
   // methods that implement data logic.
   // note there's no DOM manipulation here at all.
   methods: {
-    pluralize(n: number) {
-      return n === 1 ? "item" : "items";
+    init(){
+      
+      if(webrtcProvider.connected) {
+        console.log("init");
+        //call myself() to register me
+        console.log(this.myself);
+        if(!store.jp.title) store.jp.title = "Joker Poker"
+
+      } else {
+        window.setTimeout(this.init, 111);
+
+      }
     },
 
     getUsers() : User[] {
@@ -125,19 +163,8 @@ export default defineComponent({
       return this.shared.jp.users;
     },
 
-    addUser(name : string) {
-      this.getUsers().push({
-        name: name,
-        id : myID,
-        createdAt : new Date(),
-        icon : ''
-      });
-    },
     removeUser(id: string) {
         filterArray(this.getUsers(), (u) => u.id != id);
-    },
-    setTile(title: string) {
-        this.shared.jp.title = title;
     },
   },
 });
