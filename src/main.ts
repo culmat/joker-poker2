@@ -1,16 +1,12 @@
-// Full spec-compliant TodoMVC with localStorage persistence
-// and hash-based routing in ~120 effective lines of JavaScript.
-
-import * as Vue from "vue";
-import App from "./App.vue";
-import { enableVueBindings } from "@syncedstore/core";
+import * as Vue from "vue"
+import App from "./App.vue"
+import { enableVueBindings } from "@syncedstore/core"
 import 'vfonts/Lato.css'
 import 'vfonts/FiraCode.css'
 
 import {
-  // create naive ui
   create,
-  // component
+  // components
   NButton,
   NLayout,
   NLayoutHeader,
@@ -22,9 +18,9 @@ import {
 
 
 // make SyncedStore use Vuejs internally
-enableVueBindings(Vue);
+enableVueBindings(Vue)
 
-const app = Vue.createApp(App);
+const app = Vue.createApp(App)
 app.use(create({
   components: [
     NButton,
@@ -35,25 +31,25 @@ app.use(create({
     NH2,
     NInput
   ]
-}));
-const vm = app.mount("#app") as any;
+}))
+export const vm = app.mount("#app") as any
 
 function onHashChange() {
-  const visibility = window.location.hash.replace(/#\/?/, "");
+  const visibility = window.location.hash.replace(/#\/?/, "")
   if (["all", "active", "completed"].includes(visibility)) {
-    vm.visibility = visibility;
+    vm.visibility = visibility
   } else {
-    window.location.hash = "";
-    vm.visibility = "all";
+    window.location.hash = ""
+    vm.visibility = "all"
   }
 }
 
 declare global {
   interface Window {
-      vm:any;
+      vm:any
   }
 }
-window.vm = vm;
+window.vm = vm
 
-//window.addEventListener("hashchange", onHashChange);
-//onHashChange();
+//window.addEventListener("hashchange", onHashChange)
+//onHashChange()
