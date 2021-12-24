@@ -13,7 +13,8 @@ import {
   NLayoutFooter,
   NLayoutSider,
   NH2,
-  NInput
+  NInput,
+  NImage
 } from 'naive-ui'
 
 
@@ -29,7 +30,8 @@ app.use(create({
     NLayoutFooter,
     NLayoutSider,
     NH2,
-    NInput
+    NInput,
+    NImage
   ]
 }))
 export const vm = app.mount("#app") as any
