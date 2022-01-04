@@ -3,9 +3,9 @@
        <n-layout style="height: 1660px;">
     <n-layout-header style="height: 64px; padding: 24px;" bordered> 
       {{shared.jp.title ||'Joker Poker' }}
+      
        <n-image v-if="!init"
-    src="tail-spin.svg"
-  />
+    src="tail-spin.svg" />
       </n-layout-header
     >
     <n-layout position="absolute" style="top: 64px;">
@@ -25,6 +25,9 @@
               <n-input v-model:value="myself.name" type="text" placeholder="" /> 
               </div>
           <n-button>naive-ui</n-button> 
+            <n-menu @update:value="handleUpdateValue" :options="menuOptions" v-model:value="currentPageId" />
+
+   
       </n-layout>
     </n-layout>
   </n-layout>
@@ -39,13 +42,14 @@
 </style>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent,h } from "vue"
 import { syncedStore, getYjsValue, filterArray } from "@syncedstore/core"
 import { WebrtcProvider } from "y-webrtc"
 import { IndexeddbPersistence } from "y-indexeddb"
 import { uuidv4 } from "lib0/random"
 import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
+import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled} from '@vicons/fluent'
 
 const pathname = document.location.pathname
 var id : string
@@ -105,17 +109,52 @@ if(!myID) {
 
 awareness.setLocalState({id: myID} as Indentified)
 
- 
+function renderIcon (icon: any) {
+  return () => h(NIcon, null, { default: () => h(icon) })
+}
+
 export default defineComponent({
+  components : {
+    PeopleSettings20Filled,
+    PersonSettings20Filled,
+    People20Filled,
+    Person20Filled,
+    },
+
   data() {
     return {
       myID : myID,
       shared: store,
-      init : false
+      init : false,
+      currentPageId : 'team',
+      menuOptions : [
+         {
+            label: 'Team',
+            key: 'team',
+            icon: renderIcon(People20Filled)
+         },
+         {
+            label: 'Me',
+            key: 'me',
+            icon: renderIcon(Person20Filled)
+         },
+         {
+            label: 'Team Settings',
+            key: 'teamSettings',
+            icon: renderIcon(PeopleSettings20Filled)
+          },
+          {
+            label: 'My Settings',
+            key: 'mySettings',
+            icon: renderIcon(PersonSettings20Filled)
+          }
+      ]
     }
   },
 
   created(){
+    this.onHashChange()
+    window.addEventListener("hashchange", this.onHashChange)
     awareness.on("change", (changes: any) => {
       console.log("awareness",changes)
       this.syncAwareness()
@@ -124,7 +163,9 @@ export default defineComponent({
   },
 
   computed: {
-
+    pageIDs() : string[] {
+      return this.menuOptions.map(o => o.key)
+    },
     myself() : User {
       var users = this.shared.users
       var me = users.find(u => u.id == myID)
@@ -143,6 +184,20 @@ export default defineComponent({
   },
 
   methods: {
+    handleUpdateValue (key : string, item: any) {
+        window.location.hash = key
+    },
+
+    onHashChange() {
+      const hash = window.location.hash.substring(1)
+      if (this.pageIDs.includes(hash)) {
+        this.currentPageId = hash
+      } else {
+        window.location.hash = ""
+        this.currentPageId = "team"
+      }
+    },
+
     syncAwareness(){
       const awarenesStates = Array.from(awareness.getStates().values()) as Indentified[]
       this.shared.users.forEach(u=>{
@@ -154,6 +209,7 @@ export default defineComponent({
 })
 
 import{Initializer} from "./Initializer"
+import { NIcon } from "naive-ui"
 
 new Initializer(
   ydoc,

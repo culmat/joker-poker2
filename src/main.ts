@@ -3,7 +3,6 @@ import App from "./App.vue"
 import { enableVueBindings } from "@syncedstore/core"
 import 'vfonts/Lato.css'
 import 'vfonts/FiraCode.css'
-
 import {
   create,
   // components
@@ -14,7 +13,9 @@ import {
   NLayoutSider,
   NH2,
   NInput,
-  NImage
+  NImage,
+  NMenu,
+  NIcon
 } from 'naive-ui'
 
 
@@ -31,20 +32,13 @@ app.use(create({
     NLayoutSider,
     NH2,
     NInput,
-    NImage
+    NImage,
+    NMenu,
+    NIcon,
   ]
 }))
 export const vm = app.mount("#app") as any
 
-function onHashChange() {
-  const visibility = window.location.hash.replace(/#\/?/, "")
-  if (["all", "active", "completed"].includes(visibility)) {
-    vm.visibility = visibility
-  } else {
-    window.location.hash = ""
-    vm.visibility = "all"
-  }
-}
 
 declare global {
   interface Window {
@@ -53,5 +47,3 @@ declare global {
 }
 window.vm = vm
 
-//window.addEventListener("hashchange", onHashChange)
-//onHashChange()
