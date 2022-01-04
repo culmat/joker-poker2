@@ -3,31 +3,34 @@
        <n-layout style="height: 1660px;">
     <n-layout-header style="height: 64px; padding: 24px;" bordered> 
       {{shared.jp.title ||'Joker Poker' }}
-      
-       <n-image v-if="!init"
-    src="tail-spin.svg" />
-      </n-layout-header
-    >
+      <n-image v-if="!init" src="tail-spin.svg" />
+      <n-menu @update:value="handleUpdateValue" mode="horizontal" :options="menuOptions" v-model:value="currentPageId" />
+    </n-layout-header>
     <n-layout position="absolute" style="top: 64px;">
       <n-layout content-style="padding: 24px;" :native-scrollbar="false">
-         ID : {{myID}}<br/>
-         Shared
-         <pre>
-            {{shared}}
-          </pre>
-          <p 
-                v-for="u in this.shared.users"
-                :key="u"
-              >{{u.name}}
-              </p>
-              <n-input v-model:value="shared.jp.title" type="text" placeholder="Title" />
-              <div v-if="init">
-              <n-input v-model:value="myself.name" type="text" placeholder="" /> 
-              </div>
-          <n-button>naive-ui</n-button> 
-            <n-menu @update:value="handleUpdateValue" :options="menuOptions" v-model:value="currentPageId" />
+        
 
-   
+         currentPageId : {{currentPageId}}<br/>
+         <div v-if="currentPageId =='team/settings'">
+            <n-input v-model:value="shared.jp.title" type="text" placeholder="Title" />
+            <pre>
+              {{shared}}
+            </pre>
+          </div>
+          <div v-if="currentPageId =='team/vote'">
+              <p v-for="u in this.shared.users"
+                :key="u"
+              >{{u.name}}</p>
+          </div>
+          <div v-if="currentPageId =='~/vote'">
+               TBD
+          </div>
+          <div v-if="currentPageId =='~/settings'">
+              myID : {{myID}}<br/>
+              <div v-if="init">
+                <n-input v-model:value="myself.name" type="text" placeholder="" /> 
+              </div>
+          </div> 
       </n-layout>
     </n-layout>
   </n-layout>
@@ -119,6 +122,7 @@ function renderIcon (icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
 
+const defaultPage = 'team/vote'
 export default defineComponent({
   components : {
     PeopleSettings20Filled,
@@ -132,26 +136,26 @@ export default defineComponent({
       myID : myID,
       shared: store,
       init : false,
-      currentPageId : 'team',
+      currentPageId : defaultPage,
       menuOptions : [
          {
             label: 'Team',
-            key: 'team',
+            key: defaultPage,
             icon: renderIcon(People20Filled)
          },
          {
             label: 'Me',
-            key: 'me',
+            key: '~/vote',
             icon: renderIcon(Person20Filled)
          },
          {
             label: 'Team Settings',
-            key: 'teamSettings',
+            key: 'team/settings',
             icon: renderIcon(PeopleSettings20Filled)
           },
           {
             label: 'My Settings',
-            key: 'mySettings',
+            key: '~/settings',
             icon: renderIcon(PersonSettings20Filled)
           }
       ]
@@ -200,7 +204,7 @@ export default defineComponent({
         this.currentPageId = hash
       } else {
         window.location.hash = ""
-        this.currentPageId = "team"
+        this.currentPageId = defaultPage
       }
     },
 
