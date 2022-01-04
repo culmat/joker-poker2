@@ -45,11 +45,14 @@
 import { defineComponent,h } from "vue"
 import { syncedStore, getYjsValue, filterArray } from "@syncedstore/core"
 import { WebrtcProvider } from "y-webrtc"
+import { WebsocketProvider } from 'y-websocket'
 import { IndexeddbPersistence } from "y-indexeddb"
 import { uuidv4 } from "lib0/random"
 import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
 import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled} from '@vicons/fluent'
+import{Initializer} from "./Initializer"
+import { NIcon } from "naive-ui"
 
 const pathname = document.location.pathname
 var id : string
@@ -81,24 +84,27 @@ const store = syncedStore({
 
 const ydoc = getYjsValue(store) as Doc
 
-const webrtcProvider = new WebrtcProvider(id, ydoc)
-// , {
-//   // see https://github.com/yjs/y-webrtc#user-content-api
-//   signaling: ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
-//   password: id.split("").reverse().join("!"),
-//   awareness: new awarenessProtocol.Awareness(ydoc),
-//   maxConns: 27 +  Math.floor(Math.random() * 15),
-//   filterBcConns: true,
-//   peerOpts: {}
-// })
+const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', id, ydoc)
 
+wsProvider.on('status', (event : any) => {
+  console.log(event.status)
+})
 
+const awareness = wsProvider.awareness
+
+const webrtcProvider = new WebrtcProvider(id, ydoc, {
+                                              // see https://github.com/yjs/y-webrtc#user-content-api
+                                              signaling: ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
+                                              password: id.split("").reverse().join("!"),
+                                              awareness: awareness,
+                                              maxConns: 27 +  Math.floor(Math.random() * 15),
+                                              filterBcConns: true,
+                                              peerOpts: {}
+                                            })
 
 
 new IndexeddbPersistence(id, ydoc)
 
-// All of our network providers implement the awareness crdt
-const awareness = webrtcProvider.awareness
 console.log("clientID", awareness.clientID)
 
 var myID = localStorage.getItem(id) as string
@@ -207,12 +213,8 @@ export default defineComponent({
     },
   },
 })
-
-import{Initializer} from "./Initializer"
-import { NIcon } from "naive-ui"
-
 new Initializer(
-  ydoc,
-  webrtcProvider, ()=>{ window.vm.init = true},
-  111)
+      ydoc,
+      webrtcProvider, ()=>{ window.vm.init = true},
+      111)
 </script>
