@@ -15,7 +15,11 @@ import {
   NInput,
   NImage,
   NMenu,
-  NIcon
+  NIcon,
+  NCard,
+  NFormItem,
+  NAvatar,
+  NTooltip
 } from 'naive-ui'
 
 
@@ -35,6 +39,10 @@ app.use(create({
     NImage,
     NMenu,
     NIcon,
+    NCard,
+    NFormItem ,
+    NAvatar,
+    NTooltip  
   ]
 }))
 export const vm = app.mount("#app") as any

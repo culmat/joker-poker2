@@ -10,6 +10,7 @@
   "dependencies": {
     "@syncedstore/core": "^0.3.4",
     "core-js": "^3.6.5",
+    "ts-md5": "^1.2.10",
     "tslib": "^2.3.1",
     "vue": "^3.0.0",
     "y-indexeddb": "^9.0.6",

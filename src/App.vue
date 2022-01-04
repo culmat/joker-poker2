@@ -1,51 +1,98 @@
 
 <template>
        <n-layout style="height: 1660px;">
-    <n-layout-header style="height: 64px; padding: 24px;" bordered> 
+    <n-layout-header style="height: 48px;  line-height: 48px; padding: 2px 24px 2px 24px;" bordered>
       {{shared.jp.title ||'Joker Poker' }}
-      <n-image v-if="!init" src="tail-spin.svg" />
-      <n-menu @update:value="handleUpdateValue" mode="horizontal" :options="menuOptions" v-model:value="currentPageId" />
-    </n-layout-header>
-    <n-layout position="absolute" style="top: 64px;">
-      <n-layout content-style="padding: 24px;" :native-scrollbar="false">
-        
 
-         currentPageId : {{currentPageId}}<br/>
-         <div v-if="currentPageId =='team/settings'">
-            <n-input v-model:value="shared.jp.title" type="text" placeholder="Title" />
-            <pre>
-              {{shared}}
-            </pre>
-          </div>
-          <div v-if="currentPageId =='team/vote'">
-              <p v-for="u in this.shared.users"
-                :key="u"
-              >{{u.name}}</p>
-          </div>
-          <div v-if="currentPageId =='~/vote'">
-               TBD
-          </div>
-          <div v-if="currentPageId =='~/settings'">
-              myID : {{myID}}<br/>
-              <div v-if="init">
-                <n-input v-model:value="myself.name" type="text" placeholder="" /> 
-              </div>
-          </div> 
+      <n-tooltip trigger="hover">
+    <template #trigger>
+       <n-avatar
+          round
+          size="medium"
+          style="float:right; margin-top: 5px;"
+          :src="myself.icon"/>
+    </template>
+    {{myself.name}}
+  </n-tooltip>
+
+    </n-layout-header>
+    <n-layout  position="absolute" style="top: 64px;" id="mainContent" has-sider>
+       <n-layout-sider
+          bordered
+          show-trigger
+          collapse-mode="width"
+          :collapsed-width="64"
+          :width="240"
+          :native-scrollbar="false"
+          style="max-height: 320px;"
+        >
+         <n-menu @update:value="handleUpdateValue" mode="vertical" :options="menuOptions" v-model:value="currentPageId"
+            :collapsed-width="64"
+            :collapsed-icon-size="22"
+          />
+        </n-layout-sider>
+
+      <n-layout embedded content-style="padding: 24px;" >
+        <n-card v-if="!init">
+             Loading
+            <n-image src="tail-spin.svg" />
+        </n-card>
+        <n-card v-if="init">
+          <div v-if="currentPageId =='team/settings'">
+              <n-form-item label="Name">
+                <n-input v-model:value="shared.jp.title" type="text" placeholder="Team name" />
+              </n-form-item>
+              <pre>
+                {{shared}}
+              </pre>
+            </div>
+            <div v-if="currentPageId =='team/vote'">
+                <p v-for="u in this.shared.users"
+                  :key="u"
+                >{{u.name}}</p>
+            </div>
+            <div v-if="currentPageId =='~/vote'">
+                TBD
+            </div>
+            <div v-if="currentPageId =='~/settings'">
+                <div v-if="init">
+                   <n-form-item label="Name">
+                    <n-input v-model:value="myself.name" type="text" placeholder="" /> 
+                   </n-form-item>
+                   <n-form-item label="Email">
+                    <n-input v-model:value="myself.email" type="text" placeholder="" /> 
+                   </n-form-item>
+                </div>
+            </div>
+          </n-card> 
       </n-layout>
     </n-layout>
   </n-layout>
-
-
 </template>
 
 <style>
 .n-layout-header{
   background-color: lightgrey;
 }
+
+@media only screen and (max-width: 600px) {
+  .n-menu-item-content-header {
+    display: none;
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .n-menu-item-content-header {
+    display: inherit;
+  }
+}
+
+
 </style>
 
 <script lang="ts">
-import { defineComponent,h } from "vue"
+import { defineComponent,h  } from "vue"
 import { syncedStore, getYjsValue, filterArray } from "@syncedstore/core"
 import { WebrtcProvider } from "y-webrtc"
 import { WebsocketProvider } from 'y-websocket'
@@ -56,6 +103,7 @@ import {Doc} from 'yjs'
 import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled} from '@vicons/fluent'
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
+import {Md5} from 'ts-md5/dist/md5'
 
 const pathname = document.location.pathname
 var id : string
@@ -70,7 +118,8 @@ if(pathname.length < 2) {
 
 interface Indentified {id:string}
 interface User extends Indentified { 
-  name: string, 
+  name: string,
+  email : string, 
   createdAt: number, 
   icon: string,
   online: boolean 
@@ -180,7 +229,7 @@ export default defineComponent({
       var users = this.shared.users
       var me = users.find(u => u.id == myID)
       if(me) return me
-      me = {name :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true }
+      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true }
       users.push(me)
       // we have to search again to get the registered object. || me just keeps the compiler happy 
       return users.find(u => u.id == myID) || me
@@ -190,10 +239,22 @@ export default defineComponent({
   watch : {
       "shared.jp.title" : function(val) {
         document.title = val
+      },
+      "myself.name" : function(val) {
+        this.syncIcon()
+      },
+      "myself.email" : function(val) {
+        this.syncIcon()
       }
   },
 
   methods: {
+
+    syncIcon() {
+       const hash = Md5.hashStr((this.myself.email || this.myself.name).trim().toLowerCase())
+       this.myself.icon = 'http://www.gravatar.com/avatar/'+hash+'?d=monsterid'
+    },
+
     handleUpdateValue (key : string, item: any) {
         window.location.hash = key
     },
@@ -217,6 +278,7 @@ export default defineComponent({
     },
   },
 })
+
 new Initializer(
       ydoc,
       webrtcProvider, ()=>{ window.vm.init = true},
