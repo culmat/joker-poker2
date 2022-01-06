@@ -19,7 +19,10 @@ import {
   NCard,
   NFormItem,
   NAvatar,
-  NTooltip
+  NTooltip,
+  NList,
+  NListItem,
+  NSwitch
 } from 'naive-ui'
 
 
@@ -42,7 +45,10 @@ app.use(create({
     NCard,
     NFormItem ,
     NAvatar,
-    NTooltip  
+    NTooltip,
+    NList,
+    NListItem,
+    NSwitch  
   ]
 }))
 export const vm = app.mount("#app") as any

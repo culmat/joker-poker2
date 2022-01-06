@@ -1,22 +1,30 @@
-
 <template>
-       <n-layout style="height: 1660px;">
+       <n-layout>
     <n-layout-header style="height: 48px;  line-height: 48px; padding: 2px 24px 2px 24px;" bordered>
-      {{shared.jp.title ||'Joker Poker' }}
-
+          {{shared.jp.title ||'Joker Poker' }}   
       <n-tooltip trigger="hover">
     <template #trigger>
        <n-avatar
           round
           size="medium"
-          style="float:right; margin-top: 5px;"
+          v-on:click="navigate('~/settings')"
+          style="float:right; margin-top: 5px; margin-left: 10px; cursor: pointer;"
           :src="myself.icon"/>
+          
     </template>
     {{myself.name}}
   </n-tooltip>
 
+ <n-icon v-if="wsConnected" size="45" style="float:right; margin-top: 0px;" color="#18a058">
+   <wifi-120-regular/>
+  </n-icon>
+ <n-icon v-if="!wsConnected" size="45" style="float:right; margin-top: 0px;" color="#d03050">
+   <wifi-off-20-regular/>
+  </n-icon>
+
+
     </n-layout-header>
-    <n-layout  position="absolute" style="top: 64px;" id="mainContent" has-sider>
+    <n-layout style="height: 100%;"  id="mainContent" has-sider>
        <n-layout-sider
           bordered
           show-trigger
@@ -26,7 +34,7 @@
           :native-scrollbar="false"
           style="max-height: 320px;"
         >
-         <n-menu @update:value="handleUpdateValue" mode="vertical" :options="menuOptions" v-model:value="currentPageId"
+         <n-menu @update:value="navigate" mode="vertical" :options="navMenuOptions" v-model:value="currentPageId"
             :collapsed-width="64"
             :collapsed-icon-size="22"
           />
@@ -42,17 +50,38 @@
               <n-form-item label="Name">
                 <n-input v-model:value="shared.jp.title" type="text" placeholder="Team name" />
               </n-form-item>
+              <n-form-item label="Values">
+                <n-input v-model:value="shared.jp.values" type="textarea" :rows="15"  placeholder="one value per line, lowest weigt first, ? has no weight" />
+              </n-form-item>
+              <n-button v-on:click="shared.jp.values = defaultValues" style="float:right; margin-right: 24px;"  :disabled="shared.jp.values == defaultValues">Reset default values</n-button>
               <pre>
                 {{shared}}
               </pre>
             </div>
             <div v-if="currentPageId =='team/vote'">
-                <p v-for="u in this.shared.users"
-                  :key="u"
-                >{{u.name}}</p>
+                <n-list bordered>
+                    <n-list-item  v-for="u in shared.users.filter(u => u.name )"  :key="u">
+                      <template #prefix>
+                        <n-button></n-button>
+                      </template>
+                      <template #suffix>
+                        <n-avatar
+                            round
+                            size="medium"
+                            :src="u.icon"/>
+                      </template>
+                       {{u.name}}
+                    </n-list-item>
+                  </n-list>
             </div>
             <div v-if="currentPageId =='~/vote'">
-                TBD
+                <n-list>
+                    <n-list-item  v-for="value in values"  :key="value">
+                      <template #prefix>
+                        <n-button class="jcard">{{value}}</n-button>
+                      </template>
+                    </n-list-item>
+                  </n-list>
             </div>
             <div v-if="currentPageId =='~/settings'">
                 <div v-if="init">
@@ -62,7 +91,17 @@
                    <n-form-item label="Email">
                     <n-input v-model:value="myself.email" type="text" placeholder="" /> 
                    </n-form-item>
+                     <n-switch v-model:value="myself.estimating">
+                      <template #checked>I am participating in estimation</template>
+                      <template #unchecked>I am observing</template>
+                    </n-switch>
                 </div>
+            </div>
+            <div v-if="currentPageId =='qr'">
+               <n-image
+                width="600"
+                  :src="'https://target.baloise.ch/byod-api/rest/qr/600/'+sessionURL"
+                            /> 
             </div>
           </n-card> 
       </n-layout>
@@ -73,6 +112,12 @@
 <style>
 .n-layout-header{
   background-color: lightgrey;
+}
+.jcard {
+  min-width: 64px;
+  min-height: 64px;
+  font-weight: bold;
+  box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 6px 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 @media only screen and (max-width: 600px) {
@@ -100,7 +145,7 @@ import { IndexeddbPersistence } from "y-indexeddb"
 import { uuidv4 } from "lib0/random"
 import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
-import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled} from '@vicons/fluent'
+import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular} from '@vicons/fluent'
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
@@ -122,10 +167,12 @@ interface User extends Indentified {
   email : string, 
   createdAt: number, 
   icon: string,
-  online: boolean 
+  online: boolean,
+  estimating: boolean
 }
 interface JokerPoker {
    title : string,
+   values : string,
 }
 
 const store = syncedStore({ 
@@ -136,10 +183,12 @@ const store = syncedStore({
 
 const ydoc = getYjsValue(store) as Doc
 
-const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', id, ydoc)
+const wsProvider = new WebsocketProvider('wss://private-mango-chili.glitch.me', id, ydoc)
+// const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', id, ydoc)
 
 wsProvider.on('status', (event : any) => {
-  console.log(event.status)
+  console.log('WebsocketProvider',event.status)
+  window.vm.wsConnected = 'connected' == event.status
 })
 
 const awareness = wsProvider.awareness
@@ -156,6 +205,13 @@ const webrtcProvider = new WebrtcProvider(id, ydoc, {
 
 
 new IndexeddbPersistence(id, ydoc)
+new Initializer(
+      ydoc,
+      webrtcProvider, ()=>{ 
+        window.vm.init = false
+        window.vm.init = true
+      },
+      111)
 
 console.log("clientID", awareness.clientID)
 
@@ -178,6 +234,10 @@ export default defineComponent({
     PersonSettings20Filled,
     People20Filled,
     Person20Filled,
+    QrCode20Filled, 
+    Question20Filled, 
+    Wifi120Regular, 
+    WifiOff20Regular,
     },
 
   data() {
@@ -186,17 +246,25 @@ export default defineComponent({
       shared: store,
       init : false,
       currentPageId : defaultPage,
-      menuOptions : [
+      defaultValues : "☕\n1\n2\n3\n5\n8\n13\n20\n40\n?",
+      loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false },
+      wsConnected : false,
+      sessionURL : window.location.href.split('#')[0],
+      navMenuOptions : [
          {
-            label: 'Team',
+            label: 'Team Vote',
             key: defaultPage,
             icon: renderIcon(People20Filled)
          },
          {
-            label: 'Me',
+            label: 'My Vote',
             key: '~/vote',
             icon: renderIcon(Person20Filled)
          },
+         {
+            key: 'divider-1',
+            type: 'divider',
+          },
          {
             label: 'Team Settings',
             key: 'team/settings',
@@ -206,7 +274,21 @@ export default defineComponent({
             label: 'My Settings',
             key: '~/settings',
             icon: renderIcon(PersonSettings20Filled)
-          }
+          },
+          {
+            key: 'divider-2',
+            type: 'divider',
+          },
+          {
+            label: 'QR',
+            key: 'qr',
+            icon: renderIcon(QrCode20Filled)
+          },
+          {
+            label: 'About',
+            key: 'about',
+            icon: renderIcon(Question20Filled)
+          },
       ]
     }
   },
@@ -222,14 +304,18 @@ export default defineComponent({
   },
 
   computed: {
+    values(): string[] {
+      return (this.shared.jp.values || this.defaultValues).split("\n").map(v => v.trim())
+    },
     pageIDs() : string[] {
-      return this.menuOptions.map(o => o.key)
+      return this.navMenuOptions.map(o => o.key)
     },
     myself() : User {
+      if(!this.init) return this.loadingUser
       var users = this.shared.users
       var me = users.find(u => u.id == myID)
       if(me) return me
-      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true }
+      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true , estimating:true}
       users.push(me)
       // we have to search again to get the registered object. || me just keeps the compiler happy 
       return users.find(u => u.id == myID) || me
@@ -245,7 +331,7 @@ export default defineComponent({
       },
       "myself.email" : function(val) {
         this.syncIcon()
-      }
+      },
   },
 
   methods: {
@@ -255,8 +341,15 @@ export default defineComponent({
        this.myself.icon = 'http://www.gravatar.com/avatar/'+hash+'?d=monsterid'
     },
 
-    handleUpdateValue (key : string, item: any) {
-        window.location.hash = key
+    navigate (key : string) {
+        if('about' == key ){
+          window.open('https://codeberg.org/culmat/joker-poker/src/branch/main/README.md', 'aboutJokerPoker')
+          window.setTimeout(()=>{
+            this.onHashChange()
+          },5)
+        } else {
+          window.location.hash = key
+        }
     },
 
     onHashChange() {
@@ -279,8 +372,5 @@ export default defineComponent({
   },
 })
 
-new Initializer(
-      ydoc,
-      webrtcProvider, ()=>{ window.vm.init = true},
-      111)
+
 </script>
