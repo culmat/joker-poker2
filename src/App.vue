@@ -1,7 +1,10 @@
 <template>
        <n-layout>
     <n-layout-header style="height: 48px;  line-height: 48px; padding: 2px 24px 2px 24px;" bordered>
-          {{shared.jp.title ||'Joker Poker' }}
+         <n-h1>
+           <n-gradient-text type="primary">
+           {{title}}
+             </n-gradient-text> 
       <n-tooltip trigger="hover" placement="bottom-end">
     <template #trigger>
        <n-avatar
@@ -23,6 +26,7 @@
   </n-icon>
 
 
+           </n-h1> 
     </n-layout-header>
     <n-layout style="height: 100%;"  id="mainContent" has-sider>
        <n-layout-sider
@@ -33,6 +37,8 @@
           :width="240"
           :native-scrollbar="false"
           style="max-height: 320px;"
+          :collapsed="collapsed"
+          @update:collapsed="onCollapsed"
         >
          <n-menu @update:value="navigate" mode="vertical" :options="navMenuOptions" v-model:value="currentPageId"
             :collapsed-width="64"
@@ -42,13 +48,13 @@
 
       <n-layout embedded content-style="padding: 24px;" >
         <n-card v-if="!initialised">
-             Loading
-            <n-image src="tail-spin.svg" />
+             Loading<br/><br/>
+             <n-spin size="large" />
         </n-card>
         <n-card v-if="initialised">
             <div v-if="currentPageId =='team/estimate'">
                 <div v-if="mateCount">
-                    <n-list bordered>
+                    <n-list>
                         <n-list-item  v-for="u in estimatingUsers"  :key="u">
                           <template #prefix>
                             <n-button class="jcard" :disabled="u.id != myID" v-on:click="navigate('~/estimate')" :type="getType(u.estimation)">
@@ -74,8 +80,17 @@
                           </div>
                         </n-list-item>
                       </n-list>
-                      <n-button v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">Reset</n-button>
-                      <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone" >Reveal</n-button>
+                      <n-button v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">
+                        <n-icon style="margin-right: 6px;">
+                              <arrow-reset-20-filled/>
+                                  </n-icon>
+                        Reset</n-button>
+                      <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone">
+                        <n-icon style="margin-right: 6px;">
+                              <checkmark-12-filled/>
+                                  </n-icon>
+                        Reveal
+                        </n-button>
                     </div>
                     <div v-if="!mateCount"> 
                         You seem to be the first around here.<br/><br/>
@@ -107,7 +122,7 @@
             </div>
           <div v-if="currentPageId =='team/settings'">
               <n-form-item label="Name">
-                <n-input v-model:value="shared.jp.title" type="text" placeholder="Team name" />
+                <n-input v-model:value="shared.jp.title" type="text" placeholder="Joker Poker" />
               </n-form-item>
               <n-form-item label="Mates">
                 <n-list bordered style="width: 100%;">
@@ -129,7 +144,12 @@
               <n-form-item label="Values">
                 <n-input v-model:value="shared.jp.values" type="textarea" :rows="values.length"  placeholder="one value per line, lowest weigt first, ? has no weight" />
               </n-form-item>
-              <n-button v-on:click="shared.jp.values = defaultValues" class="rightAligned" :disabled="shared.jp.values == defaultValues">Reset default values</n-button>
+              <n-button v-on:click="shared.jp.values = defaultValues" class="rightAligned" :disabled="shared.jp.values == defaultValues">
+                <n-icon style="margin-right: 6px;">
+                              <arrow-reset-20-filled/>
+                                  </n-icon>
+                Reset default values
+                </n-button>
             </div>
             <div v-if="currentPageId =='~/settings'">
                    <n-form-item label="Name">
@@ -171,31 +191,21 @@
 
 <style>
 .n-layout-header{
-  background-color: lightgrey;
+  color: #18a058;
+  background: linear-gradient(90deg, white 0%, #e7f5ee 100%);
+  border-bottom: 1px solid #18a058 !important;
 }
 .jcard {
-  min-width: 64px;
-  min-height: 64px;
+  min-width: 46px;
+  min-height: 54px;
   box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 6px 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .rightAligned {
-  float:right; margin-right: 24px;
+  float:right; margin-left: 12px;
 }
-
-@media only screen and (max-width: 600px) {
-  .n-menu-item-content-header {
-    display: none;
-  }
+.n-avatar {
+  filter: drop-shadow(1px 2px 1px #18a058);
 }
-
-/* Small devices (portrait tablets and large phones, 600px and up) */
-@media only screen and (min-width: 600px) {
-  .n-menu-item-content-header {
-    display: inherit;
-  }
-}
-
-
 </style>
 
 <script lang="ts">
@@ -207,10 +217,14 @@ import { IndexeddbPersistence } from "y-indexeddb"
 import { uuidv4 } from "lib0/random"
 import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
-import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular} from '@vicons/fluent'
+import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular, ArrowReset20Filled} from '@vicons/fluent'
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
+
+function isSmallScreen() : boolean {
+  return window.innerWidth < 600
+}
 
 const pathname = document.location.pathname
 var id : string
@@ -299,12 +313,14 @@ export default defineComponent({
     WifiOff20Regular,
     Checkmark12Filled,
     Copy16Regular,
+    ArrowReset20Filled
     },
 
   data() {
     return {
       myID : myID,
       shared: store,
+      collapsed : isSmallScreen(),
       initialised : false,
       currentPageId : defaultPage,
       defaultValues : "☕\n1\n2\n3\n5\n8\n13\n20\n40\n?",
@@ -364,6 +380,11 @@ export default defineComponent({
   },
 
   computed: {
+    title() : string {return this.shared.jp.title ||'Joker Poker'},
+
+    isSmallScreen() : boolean {
+      return window.innerWidth < 600
+    },
     values(): string[] {
       return (this.shared.jp.values || this.defaultValues).split("\n").map(v => v.trim())
     },
@@ -429,7 +450,8 @@ export default defineComponent({
         if(val && !this.currentPageId.endsWith('settings')) this.navigate('team/estimate') 
       },
       initialised(val) {
-        if(val && !this.myself.name) this.navigate('~/settings') 
+        if(val && !this.myself.name) this.navigate('~/settings')
+        document.title = this.title
       },
   },
 
@@ -443,6 +465,9 @@ export default defineComponent({
 		navigator.clipboard.writeText(copyText.value)
   },
   
+  onCollapsed(collapsed : boolean) {
+     this.collapsed = collapsed
+   },
   syncIcon() {
        const hash = Md5.hashStr((this.myself.email || this.myself.name).trim().toLowerCase())
        this.myself.icon = 'http://www.gravatar.com/avatar/'+hash+'?d=monsterid'
@@ -474,6 +499,7 @@ export default defineComponent({
         } else {
           window.location.hash = key
         }
+        if(isSmallScreen()) this.collapsed = true
     },
 
     onHashChange() {

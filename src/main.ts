@@ -23,7 +23,10 @@ import {
   NList,
   NListItem,
   NSwitch,
-  NA
+  NA,
+  NSpin,
+  NH1,
+  NGradientText
 } from 'naive-ui'
 
 
@@ -50,7 +53,11 @@ app.use(create({
     NList,
     NListItem,
     NSwitch,
-    NA  
+    NA  ,
+    NSpin,
+    NH1,
+    NH2,
+    NGradientText
   ]
 }))
 export const vm = app.mount("#app") as any
