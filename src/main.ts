@@ -3,6 +3,8 @@ import App from "./App.vue"
 import { enableVueBindings } from "@syncedstore/core"
 import 'vfonts/Lato.css'
 import 'vfonts/FiraCode.css'
+import { VueWindowSizePlugin } from 'vue-window-size/option-api';
+
 import {
   create,
   // components
@@ -60,6 +62,7 @@ app.use(create({
     NGradientText
   ]
 }))
+app.use(VueWindowSizePlugin)
 export const vm = app.mount("#app") as any
 
 

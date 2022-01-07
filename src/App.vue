@@ -3,7 +3,7 @@
     <n-layout-header style="height: 48px;  line-height: 48px; padding: 2px 24px 2px 24px;" bordered>
          <n-h1>
            <n-gradient-text type="primary">
-           {{title}}
+           {{title}} {{ $windowWidth }}
              </n-gradient-text> 
       <n-tooltip trigger="hover" placement="bottom-end">
     <template #trigger>
@@ -46,7 +46,7 @@
           />
         </n-layout-sider>
 
-      <n-layout content-style="padding: 24px;"  style="background-color: #fafafc;" >
+      <n-layout :style="insetStyle" >
         <n-card v-if="!initialised">
              Loading<br/><br/>
              <n-spin size="large" />
@@ -222,9 +222,6 @@ import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
 
-function isSmallScreen() : boolean {
-  return window.innerWidth < 600
-}
 
 const pathname = document.location.pathname
 var id : string
@@ -320,14 +317,13 @@ export default defineComponent({
     return {
       myID : myID,
       shared: store,
-      collapsed : isSmallScreen(),
+      collapsed : this.isSmall(window.innerWidth),
       initialised : false,
       currentPageId : defaultPage,
       defaultValues : "☕\n1\n2\n3\n5\n8\n13\n20\n40\n?",
       loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimation : '' },
       wsConnected : false,
       sessionURL : window.location.href.split('#')[0],
-      windowWidth : window.innerHeight,
       navMenuOptions : [
          {
             label: 'Team Estimate',
@@ -381,11 +377,17 @@ export default defineComponent({
   },
 
   computed: {
+
+    insetStyle() : string {
+      return  this.$windowWidth > 600 ? "padding: 24px; background-color: #fafafc;" : "padding: 0px; background-color: white;"
+    },
+    
     title() : string {return this.shared.jp.title ||'Joker Poker'},
 
     isSmallScreen() : boolean {
-      return window.innerWidth < 600
+      return this.isSmall(this.$windowWidth) 
     },
+
     values(): string[] {
       return (this.shared.jp.values || this.defaultValues).split("\n").map(v => v.trim())
     },
@@ -454,10 +456,17 @@ export default defineComponent({
         if(val && !this.myself.name) this.navigate('~/settings')
         document.title = this.title
       },
+      isSmallScreen(val) {
+        this.collapsed = val
+      }
   },
 
   methods: {
 
+  isSmall(width :number):boolean {
+    return width < 600
+  },
+  
   copyToClipBoard(text: string) {
 		var copyText = (document.getElementById('clipTmp') || document.body) as HTMLInputElement
 		copyText.value= text
@@ -500,7 +509,7 @@ export default defineComponent({
         } else {
           window.location.hash = key
         }
-        if(isSmallScreen()) this.collapsed = true
+        if(this.isSmallScreen) this.collapsed = true
     },
 
     onHashChange() {
