@@ -229,6 +229,7 @@ import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person2
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
+import Cookies from 'js-cookie'
 
 
 const pathname = document.location.pathname
@@ -293,11 +294,14 @@ new Initializer(
         },
         111)
 
-var myID = localStorage.getItem(id) as string
+var myID = Cookies.get('myID') || ''
+console.log("Cookies", Cookies.get())
 if(!myID) {
   myID = uuidv4()
-  localStorage.setItem(id,myID)
 }
+Cookies.set('myID', id, { expires: 777})
+var myName = Cookies.get('myName') || ''
+var myEmail = Cookies.get('myEmail') || ''
 
 awareness.setLocalState({id: myID} as Indentified)
 
@@ -447,14 +451,16 @@ export default defineComponent({
       "shared.jp.title" : function(val) {
         document.title = val
       },
+        "myself" : function(val) {
+          this.syncAwareness()
+      },
       "myself.name" : function(val) {
         this.syncIcon()
-      },
-      "myself" : function(val) {
-        this.syncAwareness()
+        Cookies.set('myName', val, { expires: 777})
       },
       "myself.email" : function(val) {
         this.syncIcon()
+        Cookies.set('myEmail', val, { expires: 777 })
       },
       estimateCount(val) {
         if(val == 0 && this.myself.estimating && !this.currentPageId.endsWith('settings')) this.navigate('~/estimate') 
@@ -463,7 +469,11 @@ export default defineComponent({
         if(val && !this.currentPageId.endsWith('settings')) this.navigate('team/estimate') 
       },
       initialised(val) {
-        if(val && !this.myself.name) this.navigate('~/settings')
+        if(val && !this.myself.name) {
+          this.navigate('~/settings')
+          this.myself.name = myName ||''
+          this.myself.email = myEmail ||''
+        }
         document.title = this.title
       },
       isSmallScreen(val) {
