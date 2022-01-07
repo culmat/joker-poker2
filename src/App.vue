@@ -138,6 +138,14 @@
                             <template #checked>Participate</template>
                             <template #unchecked>Observe</template>
                           </n-switch>
+                           <template #suffix>
+                            <n-icon v-if="u.online" size="24" style="margin-left: 12px; margin-top: 12px;" color="#18a058">
+                              <wifi-120-regular/>
+                              </n-icon>
+                            <n-icon v-if="!u.online" size="24" style="margin-left: 12px; margin-top: 12px;" color="#d03050">
+                              <wifi-off-20-regular/>
+                              </n-icon>
+                           </template>
                       </n-list-item>
                 </n-list>
               </n-form-item>
@@ -373,7 +381,6 @@ export default defineComponent({
     awareness.on("change", (changes: any) => {
       this.syncAwareness()
     })
-    this.syncAwareness()
   },
 
   computed: {
@@ -443,6 +450,9 @@ export default defineComponent({
       "myself.name" : function(val) {
         this.syncIcon()
       },
+      "myself" : function(val) {
+        this.syncAwareness()
+      },
       "myself.email" : function(val) {
         this.syncIcon()
       },
@@ -458,7 +468,7 @@ export default defineComponent({
       },
       isSmallScreen(val) {
         this.collapsed = val
-      }
+      },
   },
 
   methods: {
@@ -524,7 +534,11 @@ export default defineComponent({
 
     syncAwareness(){
       const awarenesStates = Array.from(awareness.getStates().values()) as Indentified[]
+      console.log('awarenes',awarenesStates)
+      console.log('awarenes users length',this.shared.users.length)
+      console.log('awarenes users',this.shared.users)
       this.shared.users.forEach(u=>{
+        console.log('awarenes', awarenesStates.find(i => i.id == u.id))
         u.online = awarenesStates.find(i => i.id == u.id) != undefined
       })
     },
