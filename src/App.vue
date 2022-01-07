@@ -46,7 +46,7 @@
           />
         </n-layout-sider>
 
-      <n-layout embedded content-style="padding: 24px;" >
+      <n-layout content-style="padding: 24px;"  style="background-color: #fafafc;" >
         <n-card v-if="!initialised">
              Loading<br/><br/>
              <n-spin size="large" />
@@ -269,7 +269,7 @@ wsProvider.on('status', (event : any) => {
 
 const awareness = wsProvider.awareness
 
-const webrtcProvider = new WebrtcProvider(id, ydoc, {
+new WebrtcProvider(id, ydoc, {
                                                 // see https://github.com/yjs/y-webrtc#user-content-api
                                                 signaling: ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
                                                 password: id.split("").reverse().join("!"),
@@ -327,6 +327,7 @@ export default defineComponent({
       loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimation : '' },
       wsConnected : false,
       sessionURL : window.location.href.split('#')[0],
+      windowWidth : window.innerHeight,
       navMenuOptions : [
          {
             label: 'Team Estimate',
