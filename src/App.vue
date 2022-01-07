@@ -1,8 +1,8 @@
 <template>
        <n-layout>
     <n-layout-header style="height: 48px;  line-height: 48px; padding: 2px 24px 2px 24px;" bordered>
-          {{shared.jp.title ||'Joker Poker' }}   
-      <n-tooltip trigger="hover">
+          {{shared.jp.title ||'Joker Poker' }}
+      <n-tooltip trigger="hover" placement="bottom-end">
     <template #trigger>
        <n-avatar
           round
@@ -41,52 +41,99 @@
         </n-layout-sider>
 
       <n-layout embedded content-style="padding: 24px;" >
-        <n-card v-if="!init">
+        <n-card v-if="!initialised">
              Loading
             <n-image src="tail-spin.svg" />
         </n-card>
-        <n-card v-if="init">
+        <n-card v-if="initialised">
+            <div v-if="currentPageId =='team/estimate'">
+                <div v-if="mateCount">
+                    <n-list bordered>
+                        <n-list-item  v-for="u in estimatingUsers"  :key="u">
+                          <template #prefix>
+                            <n-button class="jcard" :disabled="u.id != myID" v-on:click="navigate('~/estimate')" :type="getType(u.estimation)">
+                                  <div v-if="u.id == myID || estimateDone" style="font-weight: bolder;">
+                                    {{u.estimation}}
+                                  </div>
+                                  <n-icon v-if="u.estimation && u.id != myID && !estimateDone">
+                                    <checkmark-12-filled/>
+                                  </n-icon>
+                            </n-button>
+                          </template>
+                          <template #suffix>
+                            <n-avatar
+                                round
+                                size="medium"
+                                :src="u.icon"/>
+                          </template>
+                          <n-button text v-if="u.id == myID" v-on:click="navigate('~/estimate')" style="font-weight: bolder;">
+                              {{u.name}}
+                          </n-button>
+                          <div v-if="u.id != myID">
+                              {{u.name}}
+                          </div>
+                        </n-list-item>
+                      </n-list>
+                      <n-button v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">Reset</n-button>
+                      <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone" >Reveal</n-button>
+                    </div>
+                    <div v-if="!mateCount"> 
+                        You seem to be the first around here.<br/><br/>
+                         <n-button type="primary" v-on:click="navigate('qr')">
+                            <template #icon>
+                              <n-icon>
+                                <qr-code-20-filled/>
+                              </n-icon>
+                            </template>
+                            Invite some mates
+                         </n-button>
+                    </div>
+            </div>
+            <div v-if="currentPageId =='~/estimate'">
+                <n-list v-if="myself.estimating">
+                    <n-list-item  v-for="value in values"  :key="value">
+                      <template #prefix>
+                        <n-button class="jcard" v-on:click="myself.estimation=value; navigate('team/estimate');"  strong="true">{{value}}</n-button>
+                      </template>
+                    </n-list-item>
+                  </n-list>
+                  <div v-if="!myself.estimating">
+                    As observer you do not figure in the list of team mates and thus can not cast an estimate.<br/><br/>
+                    <n-switch v-model:value="myself.estimating">
+                      <template #checked>I am participating in estimation</template>
+                      <template #unchecked>I am observing</template>
+                    </n-switch>
+                  </div>
+            </div>
           <div v-if="currentPageId =='team/settings'">
               <n-form-item label="Name">
                 <n-input v-model:value="shared.jp.title" type="text" placeholder="Team name" />
               </n-form-item>
-              <n-form-item label="Values">
-                <n-input v-model:value="shared.jp.values" type="textarea" :rows="15"  placeholder="one value per line, lowest weigt first, ? has no weight" />
+              <n-form-item label="Mates">
+                <n-list bordered style="width: 100%;">
+                  <n-list-item  v-for="u in namedUsers"  :key="u">
+                        <template #prefix>
+                          <n-avatar
+                              round
+                              size="medium"
+                              :src="u.icon"/>
+                        </template>
+                        <span style="min-width: 88px; display: inline-block;">{{u.name}}</span>
+                          <n-switch v-model:value="u.estimating" style="margin-left: 12px;">
+                            <template #checked>Participate</template>
+                            <template #unchecked>Observe</template>
+                          </n-switch>
+                      </n-list-item>
+                </n-list>
               </n-form-item>
-              <n-button v-on:click="shared.jp.values = defaultValues" style="float:right; margin-right: 24px;"  :disabled="shared.jp.values == defaultValues">Reset default values</n-button>
-              <pre>
-                {{shared}}
-              </pre>
-            </div>
-            <div v-if="currentPageId =='team/vote'">
-                <n-list bordered>
-                    <n-list-item  v-for="u in shared.users.filter(u => u.name )"  :key="u">
-                      <template #prefix>
-                        <n-button></n-button>
-                      </template>
-                      <template #suffix>
-                        <n-avatar
-                            round
-                            size="medium"
-                            :src="u.icon"/>
-                      </template>
-                       {{u.name}}
-                    </n-list-item>
-                  </n-list>
-            </div>
-            <div v-if="currentPageId =='~/vote'">
-                <n-list>
-                    <n-list-item  v-for="value in values"  :key="value">
-                      <template #prefix>
-                        <n-button class="jcard">{{value}}</n-button>
-                      </template>
-                    </n-list-item>
-                  </n-list>
+              <n-form-item label="Values">
+                <n-input v-model:value="shared.jp.values" type="textarea" :rows="values.length"  placeholder="one value per line, lowest weigt first, ? has no weight" />
+              </n-form-item>
+              <n-button v-on:click="shared.jp.values = defaultValues" class="rightAligned" :disabled="shared.jp.values == defaultValues">Reset default values</n-button>
             </div>
             <div v-if="currentPageId =='~/settings'">
-                <div v-if="init">
                    <n-form-item label="Name">
-                    <n-input v-model:value="myself.name" type="text" placeholder="" /> 
+                    <n-input v-model:value="myself.name" type="text" :placeholder="myself.estimating? 'Please enter your name' : ''" autofocus/> 
                    </n-form-item>
                    <n-form-item label="Email">
                     <n-input v-model:value="myself.email" type="text" placeholder="" /> 
@@ -94,19 +141,32 @@
                      <n-switch v-model:value="myself.estimating">
                       <template #checked>I am participating in estimation</template>
                       <template #unchecked>I am observing</template>
-                    </n-switch>
-                </div>
+                      </n-switch>
             </div>
-            <div v-if="currentPageId =='qr'">
-               <n-image
-                width="600"
+            <div v-if="currentPageId =='qr'" style="width:100%; text-align: center; display:inline-block">
+               <n-image style="width:100%; text-align: center; display:inline-block"
                   :src="'https://target.baloise.ch/byod-api/rest/qr/600/'+sessionURL"
-                            /> 
+                            /> <br/>
+                            You have {{mateCount}} mates.<br/>
+                            <n-a :href="sessionURL">{{sessionURL}}</n-a>
+                             <n-tooltip trigger="hover" placement="top">
+                                <template #trigger>
+                                    <n-button v-on:click="copyToClipBoard(sessionURL)" style="margin-left: 12px;">
+                                    <template #icon>
+                                      <n-icon>
+                                        <copy-16-regular/>
+                                      </n-icon>
+                                    </template>
+                                </n-button>
+                              </template>
+                              Copy to clipboard
+                             </n-tooltip>
             </div>
           </n-card> 
       </n-layout>
     </n-layout>
   </n-layout>
+  <input type="text" value="" id="clipTmp" hidden/>
 </template>
 
 <style>
@@ -116,8 +176,10 @@
 .jcard {
   min-width: 64px;
   min-height: 64px;
-  font-weight: bold;
   box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 6px 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.rightAligned {
+  float:right; margin-right: 24px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -145,7 +207,7 @@ import { IndexeddbPersistence } from "y-indexeddb"
 import { uuidv4 } from "lib0/random"
 import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
-import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular} from '@vicons/fluent'
+import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular} from '@vicons/fluent'
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
@@ -168,7 +230,8 @@ interface User extends Indentified {
   createdAt: number, 
   icon: string,
   online: boolean,
-  estimating: boolean
+  estimating: boolean,
+  estimation: string
 }
 interface JokerPoker {
    title : string,
@@ -187,33 +250,29 @@ const wsProvider = new WebsocketProvider('wss://private-mango-chili.glitch.me', 
 // const wsProvider = new WebsocketProvider('wss://demos.yjs.dev', id, ydoc)
 
 wsProvider.on('status', (event : any) => {
-  console.log('WebsocketProvider',event.status)
   window.vm.wsConnected = 'connected' == event.status
 })
 
 const awareness = wsProvider.awareness
 
 const webrtcProvider = new WebrtcProvider(id, ydoc, {
-                                              // see https://github.com/yjs/y-webrtc#user-content-api
-                                              signaling: ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
-                                              password: id.split("").reverse().join("!"),
-                                              awareness: awareness,
-                                              maxConns: 27 +  Math.floor(Math.random() * 15),
-                                              filterBcConns: true,
-                                              peerOpts: {}
-                                            })
-
+                                                // see https://github.com/yjs/y-webrtc#user-content-api
+                                                signaling: ['wss://signaling.yjs.dev', 'wss://y-webrtc-signaling-eu.herokuapp.com', 'wss://y-webrtc-signaling-us.herokuapp.com'],
+                                                password: id.split("").reverse().join("!"),
+                                                awareness: awareness,
+                                                maxConns: 27 +  Math.floor(Math.random() * 15),
+                                                filterBcConns: true,
+                                                peerOpts: {}
+                                              })
+                                              
 
 new IndexeddbPersistence(id, ydoc)
 new Initializer(
-      ydoc,
-      webrtcProvider, ()=>{ 
-        window.vm.init = false
-        window.vm.init = true
-      },
-      111)
-
-console.log("clientID", awareness.clientID)
+        ydoc,
+        wsProvider, ()=>{ 
+          window.vm.initialised = true
+        },
+        111)
 
 var myID = localStorage.getItem(id) as string
 if(!myID) {
@@ -227,7 +286,7 @@ function renderIcon (icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
 
-const defaultPage = 'team/vote'
+const defaultPage = 'team/estimate'
 export default defineComponent({
   components : {
     PeopleSettings20Filled,
@@ -238,27 +297,29 @@ export default defineComponent({
     Question20Filled, 
     Wifi120Regular, 
     WifiOff20Regular,
+    Checkmark12Filled,
+    Copy16Regular,
     },
 
   data() {
     return {
       myID : myID,
       shared: store,
-      init : false,
+      initialised : false,
       currentPageId : defaultPage,
       defaultValues : "☕\n1\n2\n3\n5\n8\n13\n20\n40\n?",
-      loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false },
+      loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimation : '' },
       wsConnected : false,
       sessionURL : window.location.href.split('#')[0],
       navMenuOptions : [
          {
-            label: 'Team Vote',
+            label: 'Team Estimate',
             key: defaultPage,
             icon: renderIcon(People20Filled)
          },
          {
-            label: 'My Vote',
-            key: '~/vote',
+            label: 'My Estimate',
+            key: '~/estimate',
             icon: renderIcon(Person20Filled)
          },
          {
@@ -297,7 +358,6 @@ export default defineComponent({
     this.onHashChange()
     window.addEventListener("hashchange", this.onHashChange)
     awareness.on("change", (changes: any) => {
-      console.log("awareness",changes)
       this.syncAwareness()
     })
     this.syncAwareness()
@@ -307,18 +367,48 @@ export default defineComponent({
     values(): string[] {
       return (this.shared.jp.values || this.defaultValues).split("\n").map(v => v.trim())
     },
+    valuesWithoutQuestionmark(): string[] {
+      return this.values.filter(v=> v != '?')
+    },
     pageIDs() : string[] {
       return this.navMenuOptions.map(o => o.key)
     },
     myself() : User {
-      if(!this.init) return this.loadingUser
+      if(!this.initialised) return this.loadingUser
       var users = this.shared.users
       var me = users.find(u => u.id == myID)
       if(me) return me
-      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true , estimating:true}
+      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true , estimating:true, estimation : ''}
       users.push(me)
       // we have to search again to get the registered object. || me just keeps the compiler happy 
       return users.find(u => u.id == myID) || me
+    },
+    namedUsers(): User[] {
+      return this.shared.users.filter(u => u.name)
+    },
+    estimatingUsers(): User[] {
+      return this.namedUsers.filter(u => u.online && u.estimating )
+    },
+    mateCount(): number {
+      return Math.max(0, this.estimatingUsers.length - (this.myself.estimating?1:0))
+    },
+    estimates(): string[] {
+      return this.estimatingUsers.map(u => u.estimation)
+    },
+    estimateCount() : number {
+      return this.estimatingUsers.filter(u=>u.estimation).length
+    },
+    estimateProgress(): number {
+      return 100 * this.estimateCount / this.estimatingUsers.length;
+    },
+    estimateDone() : boolean {
+      return 100 == this.estimateProgress;
+    },
+    estimateLow() : string | undefined {
+      return this.valuesWithoutQuestionmark.find(v=> this.estimates.includes(v))
+    },
+    estimateHeigh() : string | undefined {
+      return this.valuesWithoutQuestionmark.slice().reverse().find(v=> this.estimates.includes(v))
     },
   },
 
@@ -332,13 +422,47 @@ export default defineComponent({
       "myself.email" : function(val) {
         this.syncIcon()
       },
+      estimateCount(val) {
+        if(val == 0 && this.myself.estimating && !this.currentPageId.endsWith('settings')) this.navigate('~/estimate') 
+      },
+      estimateDone(val) {
+        if(val && !this.currentPageId.endsWith('settings')) this.navigate('team/estimate') 
+      },
+      initialised(val) {
+        if(val && !this.myself.name) this.navigate('~/settings') 
+      },
   },
 
   methods: {
 
-    syncIcon() {
+  copyToClipBoard(text: string) {
+		var copyText = (document.getElementById('clipTmp') || document.body) as HTMLInputElement
+		copyText.value= text
+		copyText.select()
+		copyText.setSelectionRange(0, 99999); /* For mobile devices */
+		navigator.clipboard.writeText(copyText.value)
+  },
+  
+  syncIcon() {
        const hash = Md5.hashStr((this.myself.email || this.myself.name).trim().toLowerCase())
        this.myself.icon = 'http://www.gravatar.com/avatar/'+hash+'?d=monsterid'
+    },
+    
+    getType(estimation : string) : string {
+      if(!this.estimateDone) return ''
+      if(estimation == '?') return ''
+      if(this.estimateLow == this.estimateHeigh) return 'success'
+      if(this.estimateLow == estimation) return 'error'
+      if(this.estimateHeigh == estimation) return 'warning'
+      return ''
+    },
+
+    reset() {
+      this.shared.users.forEach(u=>u.estimation = '')
+    },
+    
+    reveal() {
+      this.shared.users.forEach(u=>u.estimation = u.estimation || '?')
     },
 
     navigate (key : string) {
@@ -365,7 +489,6 @@ export default defineComponent({
     syncAwareness(){
       const awarenesStates = Array.from(awareness.getStates().values()) as Indentified[]
       this.shared.users.forEach(u=>{
-        console.log("awareness",u,awarenesStates.find(i => i.id == u.id))
         u.online = awarenesStates.find(i => i.id == u.id) != undefined
       })
     },

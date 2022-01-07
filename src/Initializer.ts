@@ -1,30 +1,30 @@
 import {Doc} from 'yjs'
-import { WebrtcProvider } from "y-webrtc"
+import { WebsocketProvider } from "y-websocket"
 
 export class Initializer {
     busyStart = -1
     doc: Doc
-    webrtcProvider : WebrtcProvider
+    connectionProvider : WebsocketProvider
     andThen : Function
     timer = 0
     initTimeout:number
     
     constructor(
        doc: Doc, 
-       webrtcProvider : WebrtcProvider, 
+       connectionProvider : WebsocketProvider, 
        andThen : Function, 
        initTimeout:number
        ) {
       this.doc = doc
       this.andThen = andThen
-      this.webrtcProvider = webrtcProvider
+      this.connectionProvider = connectionProvider
       this.initTimeout = initTimeout
       this.doc.on("beforeAllTransactions", this.beforeAllTransactions.bind(this)) 
       this.doc.on("afterAllTransactions", this.afterAllTransactions.bind(this)) 
     }
   
     beforeAllTransactions() : void {
-      if(!this.webrtcProvider.connected) return
+      if(!this.connectionProvider.wsconnected) return
       if(this.timer) window.clearTimeout(this.timer)
       console.log("ydoc busy")
       this.busyStart = new Date().getTime()

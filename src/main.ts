@@ -22,7 +22,8 @@ import {
   NTooltip,
   NList,
   NListItem,
-  NSwitch
+  NSwitch,
+  NA
 } from 'naive-ui'
 
 
@@ -48,7 +49,8 @@ app.use(create({
     NTooltip,
     NList,
     NListItem,
-    NSwitch  
+    NSwitch,
+    NA  
   ]
 }))
 export const vm = app.mount("#app") as any
