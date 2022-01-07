@@ -26,21 +26,18 @@ export class Initializer {
     beforeAllTransactions() : void {
       if(!this.connectionProvider.wsconnected) return
       if(this.timer) window.clearTimeout(this.timer)
-      console.log("ydoc busy")
       this.busyStart = new Date().getTime()
     }
   
     afterAllTransactions(): void {
       if(this.busyStart < 0) return
       const duration = new Date().getTime() - this.busyStart
-      console.log("ydoc calm after", duration)     
       this.timer = window.setTimeout(this.fire.bind(this),this.initTimeout)
     }
 
     fire() : void {
       this.doc.off("beforeAllTransactions", this.beforeAllTransactions.bind(this))
       this.doc.off("afterAllTransactions", this.afterAllTransactions.bind(this))
-      console.log("ydoc init fire") 
       this.andThen()
     }
   

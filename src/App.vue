@@ -294,12 +294,11 @@ new Initializer(
         },
         111)
 
-var myID = Cookies.get('myID') || ''
-console.log("Cookies", Cookies.get())
+var myID = localStorage.getItem(id) as string
 if(!myID) {
   myID = uuidv4()
+  localStorage.setItem(id,myID)
 }
-Cookies.set('myID', id, { expires: 777})
 var myName = Cookies.get('myName') || ''
 var myEmail = Cookies.get('myEmail') || ''
 
@@ -544,11 +543,7 @@ export default defineComponent({
 
     syncAwareness(){
       const awarenesStates = Array.from(awareness.getStates().values()) as Indentified[]
-      console.log('awarenes',awarenesStates)
-      console.log('awarenes users length',this.shared.users.length)
-      console.log('awarenes users',this.shared.users)
       this.shared.users.forEach(u=>{
-        console.log('awarenes', awarenesStates.find(i => i.id == u.id))
         u.online = awarenesStates.find(i => i.id == u.id) != undefined
       })
     },
