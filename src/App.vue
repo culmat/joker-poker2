@@ -133,7 +133,7 @@
                               size="medium"
                               :src="u.icon"/>
                         </template>
-                        <span style="min-width: 88px; display: inline-block;">{{u.name}}</span>
+                        <span :style="u.id == myself.id? 'min-width: 88px; display: inline-block; font-weight:bolder;' : 'min-width: 88px; display: inline-block;'">{{u.name}}</span>
                           <n-switch v-model:value="u.estimating" style="margin-left: 12px;">
                             <template #checked>Participate</template>
                             <template #unchecked>Observe</template>
