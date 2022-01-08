@@ -30,7 +30,9 @@ import {
   NH1,
   NGradientText,
   NForm,
-  NProgress
+  NProgress,
+  NGrid,
+  NGridItem
 } from 'naive-ui'
 
 
@@ -63,7 +65,9 @@ app.use(create({
     NH2,
     NGradientText,
     NForm,
-    NProgress
+    NProgress,
+    NGrid,
+    NGridItem
   ]
 }))
 app.use(VueWindowSizePlugin)

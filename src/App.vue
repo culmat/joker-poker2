@@ -134,19 +134,26 @@
                               size="medium"
                               :src="u.icon"/>
                         </template>
-                        <span :style="u.id == myself.id? 'min-width: 88px; display: inline-block; font-weight:bolder;' : 'min-width: 88px; display: inline-block;'">{{u.name}}</span>
-                          <n-switch v-model:value="u.estimating" style="margin-left: 12px;">
+
+                        <n-grid cols="1 s:3" responsive="screen">
+                        <n-grid-item>
+                          <span :style="u.id == myself.id? 'min-width: 88px; display: inline-block; font-weight:bolder;' : 'min-width: 88px; display: inline-block;'">{{u.name}}</span>
+                        </n-grid-item>
+                        <n-grid-item>
+                          <n-switch v-model:value="u.estimating">
                             <template #checked>Estimate</template>
                             <template #unchecked>Observe</template>
                           </n-switch>
-                           <template #suffix>
-                            <n-icon v-if="u.online" size="24" style="margin-left: 12px; margin-top: 12px;" color="#18a058">
+                        </n-grid-item>
+                        <n-grid-item>
+                            <n-icon v-if="u.online" size="24" color="#18a058">
                               <wifi-120-regular/>
                               </n-icon>
-                            <n-icon v-if="!u.online" size="24" style="margin-left: 12px; margin-top: 12px;" color="#d03050">
+                            <n-icon v-if="!u.online" size="24" color="#d03050">
                               <wifi-off-20-regular/>
                               </n-icon>
-                           </template>
+                        </n-grid-item>
+                        </n-grid>
                       </n-list-item>
                 </n-list>
               </n-form-item>
