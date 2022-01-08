@@ -161,7 +161,7 @@
             </div>
             <div v-if="currentPageId =='~/settings'">
                    <n-form-item label="Name">
-                    <n-input v-model:value="myself.name" type="text" :placeholder="myself.estimating? 'Please enter your name' : ''" autofocus/> 
+                    <n-input v-model:value="myself.name" type="text" :placeholder="myself.estimating? 'Please enter your name' : ''"/> 
                    </n-form-item>
                    <n-form-item label="Email">
                     <n-input v-model:value="myself.email" type="text" placeholder="" /> 
