@@ -11,17 +11,17 @@
           round
           size="medium"
           v-on:click="navigate('~/settings')"
-          style="float:right; margin-top: 5px; margin-left: 10px; cursor: pointer;"
+          style="float:right; margin-top: 5px; margin-left: 16px; cursor: pointer;"
           :src="myself.icon"/>
           
     </template>
     {{myself.name}}
   </n-tooltip>
 
- <n-icon v-if="wsConnected" size="45" style="float:right; margin-top: 0px;" color="#18a058">
+ <n-icon v-if="wsConnected" size="45" style="float:right; margin-top: -2px;" color="#18a058">
    <wifi-120-regular/>
   </n-icon>
- <n-icon v-if="!wsConnected" size="45" style="float:right; margin-top: 0px;" color="#d03050">
+ <n-icon v-if="!wsConnected" size="45" style="float:right; margin-top: -2px;" color="#d03050">
    <wifi-off-20-regular/>
   </n-icon>
 
