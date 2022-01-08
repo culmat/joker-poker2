@@ -397,7 +397,7 @@ export default defineComponent({
   computed: {
 
     insetStyle() : string {
-      return  this.$windowWidth > 600 ? "padding: 24px; background-color: #fafafc;" : "padding: 0px; background-color: white;"
+      return  this.isSmallScreen ? "padding: 24px; background-color: #fafafc;" : "padding: 0px; background-color: white;"
     },
     
     title() : string {return this.shared.jp.title ||'Joker Poker'},
@@ -496,7 +496,7 @@ export default defineComponent({
   methods: {
 
   isSmall(width :number):boolean {
-    return width < 600
+    return width < 640
   },
   
   copyToClipBoard(text: string) {
