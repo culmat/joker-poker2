@@ -404,7 +404,7 @@ export default defineComponent({
     },
 
     values(): string[] {
-      return (this.shared.jp.values || this.defaultValues).split("\n").map(v => v.trim())
+      return (this.shared.jp.values || this.defaultValues).trim().split("\n").map(v => v.trim())
     },
     valuesWithoutQuestionmark(): string[] {
       return this.values.filter(v=> v != '?')
