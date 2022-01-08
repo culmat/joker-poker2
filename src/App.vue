@@ -57,11 +57,11 @@
                     <n-list>
                         <n-list-item  v-for="u in estimatingUsers"  :key="u">
                           <template #prefix>
-                            <n-button class="jcard" :disabled="u.id != myID" v-on:click="navigate('~/estimate')" :type="getType(u.estimation)">
+                            <n-button class="jcard" :disabled="u.id != myID" v-on:click="navigate('~/estimate')" :type="getType(u.estimate)">
                                   <div v-if="u.id == myID || estimateDone" style="font-weight: bolder;">
-                                    {{u.estimation}}
+                                    {{u.estimate}}
                                   </div>
-                                  <n-icon v-if="u.estimation && u.id != myID && !estimateDone">
+                                  <n-icon v-if="u.estimate && u.id != myID && !estimateDone">
                                     <checkmark-12-filled/>
                                   </n-icon>
                             </n-button>
@@ -108,7 +108,7 @@
                 <n-list v-if="myself.estimating">
                     <n-list-item  v-for="value in values"  :key="value">
                       <template #prefix>
-                        <n-button class="jcard" v-on:click="myself.estimation=value; navigate('team/estimate');"  strong="true">{{value}}</n-button>
+                        <n-button class="jcard" v-on:click="myself.estimate=value; navigate('team/estimate');"  strong="true">{{value}}</n-button>
                       </template>
                     </n-list-item>
                   </n-list>
@@ -256,7 +256,7 @@ interface User extends Indentified {
   icon: string,
   online: boolean,
   estimating: boolean,
-  estimation: string
+  estimate: string
 }
 interface JokerPoker {
    title : string,
@@ -337,7 +337,7 @@ export default defineComponent({
       initialised : false,
       currentPageId : defaultPage,
       defaultValues : "☕\n1\n2\n3\n5\n8\n13\n20\n40\n?",
-      loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimation : '' },
+      loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimate : '' },
       wsConnected : false,
       sessionURL : window.location.href.split('#')[0],
       navMenuOptions : [
@@ -417,7 +417,7 @@ export default defineComponent({
       var users = this.shared.users
       var me = users.find(u => u.id == myID)
       if(me) return me
-      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true , estimating:true, estimation : ''}
+      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true , estimating:true, estimate : ''}
       users.push(me)
       // we have to search again to get the registered object. || me just keeps the compiler happy 
       return users.find(u => u.id == myID) || me
@@ -432,10 +432,10 @@ export default defineComponent({
       return Math.max(0, this.estimatingUsers.length - (this.myself.estimating?1:0))
     },
     estimates(): string[] {
-      return this.estimatingUsers.map(u => u.estimation)
+      return this.estimatingUsers.map(u => u.estimate)
     },
     estimateCount() : number {
-      return this.estimatingUsers.filter(u=>u.estimation).length
+      return this.estimatingUsers.filter(u=>u.estimate).length
     },
     estimateProgress(): number {
       return 100 * this.estimateCount / this.estimatingUsers.length;
@@ -509,21 +509,21 @@ export default defineComponent({
        this.myself.icon = 'http://www.gravatar.com/avatar/'+hash+'?d=monsterid'
     },
     
-    getType(estimation : string) : string {
+    getType(estimate : string) : string {
       if(!this.estimateDone) return ''
-      if(estimation == '?') return ''
+      if(estimate == '?') return ''
       if(this.estimateLow == this.estimateHeigh) return 'success'
-      if(this.estimateLow == estimation) return 'error'
-      if(this.estimateHeigh == estimation) return 'warning'
+      if(this.estimateLow == estimate) return 'error'
+      if(this.estimateHeigh == estimate) return 'warning'
       return ''
     },
 
     reset() {
-      this.shared.users.forEach(u=>u.estimation = '')
+      this.shared.users.forEach(u=>u.estimate = '')
     },
     
     reveal() {
-      this.shared.users.forEach(u=>u.estimation = u.estimation || '?')
+      this.shared.users.forEach(u=>u.estimate = u.estimate || '?')
     },
 
     autoNavigate () {
