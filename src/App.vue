@@ -459,7 +459,7 @@ export default defineComponent({
     },
 
     insetStyle() : string {
-      return  this.isSmallScreen ? "padding: 24px; background-color: #fafafc;" : "padding: 0px; background-color: white;"
+      return  this.isSmallScreen ? "padding: 0px; background-color: white;" : "padding: 24px; background-color: #fafafc;"
     },
     
     title() : string {return this.shared.jp.title ||'Joker Poker'},
