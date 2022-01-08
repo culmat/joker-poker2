@@ -72,7 +72,7 @@
                                 size="medium"
                                 :src="u.icon"/>
                           </template>
-                          <n-button text v-if="u.id == myID" v-on:click="navigate('~/estimate')" style="font-weight: bolder;">
+                          <n-button text v-if="u.id == myID" v-on:click="navigate('~/estimate')" style="font-weight: bolder;" size="large">
                               {{u.name}}
                           </n-button>
                           <div v-if="u.id != myID">
@@ -443,6 +443,9 @@ export default defineComponent({
     estimateDone() : boolean {
       return 100 == this.estimateProgress;
     },
+    estimateStarted() : boolean {
+      return this.estimateProgress > 0;
+    },
     estimateLow() : string | undefined {
       return this.valuesWithoutQuestionmark.find(v=> this.estimates.includes(v))
     },
@@ -529,7 +532,7 @@ export default defineComponent({
     autoNavigate () {
       if      (!this.myself.name)   this.navigate('~/settings')
       else if (!this.mateCount)     this.navigate('qr')
-      else if (this.myself.estimating && 
+      else if (this.myself.estimating && this.estimateStarted && 
               !this.estimateDone)   this.navigate('~/estimate')
       else                          this.navigate('team/estimate')
     },
