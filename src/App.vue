@@ -121,8 +121,9 @@
                   </div>
             </div>
           <div v-if="currentPageId =='team/settings'">
+            <n-form>
               <n-form-item label="Name">
-                <n-input v-model:value="shared.jp.title" type="text" placeholder="Joker Poker" />
+                <n-input @keypress.enter="autoNavigate()" v-model:value="shared.jp.title" type="text" placeholder="Joker Poker" />
               </n-form-item>
               <n-form-item label="Mates">
                 <n-list bordered style="width: 100%;">
@@ -135,7 +136,7 @@
                         </template>
                         <span :style="u.id == myself.id? 'min-width: 88px; display: inline-block; font-weight:bolder;' : 'min-width: 88px; display: inline-block;'">{{u.name}}</span>
                           <n-switch v-model:value="u.estimating" style="margin-left: 12px;">
-                            <template #checked>Participate</template>
+                            <template #checked>Estimate</template>
                             <template #unchecked>Observe</template>
                           </n-switch>
                            <template #suffix>
@@ -158,18 +159,22 @@
                                   </n-icon>
                 Reset default values
                 </n-button>
+            </n-form>
             </div>
             <div v-if="currentPageId =='~/settings'">
+            <n-form >
                    <n-form-item label="Name">
-                    <n-input v-model:value="myself.name" type="text" :placeholder="myself.estimating? 'Please enter your name' : ''"/> 
+                    <n-input @keypress.enter="autoNavigate()"
+                    v-model:value="myself.name" type="text" :placeholder="myself.estimating? 'Please enter your name' : ''" :autofocus="true"/> 
                    </n-form-item>
                    <n-form-item label="Email">
-                    <n-input v-model:value="myself.email" type="text" placeholder="" /> 
+                    <n-input @keypress.enter="autoNavigate()" v-model:value="myself.email" type="text" placeholder="" /> 
                    </n-form-item>
                      <n-switch v-model:value="myself.estimating">
                       <template #checked>I am participating in estimation</template>
                       <template #unchecked>I am observing</template>
                       </n-switch>
+              </n-form>
             </div>
             <div v-if="currentPageId =='qr'" style="width:100%; text-align: center; display:inline-block">
                <n-image style="width:100%; text-align: center; display:inline-block"
@@ -468,10 +473,12 @@ export default defineComponent({
         if(val && !this.currentPageId.endsWith('settings')) this.navigate('team/estimate') 
       },
       initialised(val) {
-        if(val && !this.myself.name) {
-          this.navigate('~/settings')
-          this.myself.name = myName ||''
-          this.myself.email = myEmail ||''
+        if(val) {
+          if(!this.myself.name) {
+            this.myself.name = myName ||''
+            this.myself.email = myEmail ||''
+          }
+          this.autoNavigate()
         }
         document.title = this.title
       },
@@ -519,7 +526,15 @@ export default defineComponent({
       this.shared.users.forEach(u=>u.estimation = u.estimation || '?')
     },
 
+    autoNavigate () {
+      if      (!this.myself.name)   this.navigate('~/settings')
+      else if (!this.mateCount)     this.navigate('qr')
+      else if (this.myself.estimating && 
+              !this.estimateDone)   this.navigate('~/estimate')
+      else                          this.navigate('team/estimate')
+    },
     navigate (key : string) {
+        
         if('about' == key ){
           window.open('https://codeberg.org/culmat/joker-poker/src/branch/main/README.md', 'aboutJokerPoker')
           window.setTimeout(()=>{

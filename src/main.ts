@@ -28,7 +28,8 @@ import {
   NA,
   NSpin,
   NH1,
-  NGradientText
+  NGradientText,
+  NForm
 } from 'naive-ui'
 
 
@@ -59,7 +60,8 @@ app.use(create({
     NSpin,
     NH1,
     NH2,
-    NGradientText
+    NGradientText,
+    NForm
   ]
 }))
 app.use(VueWindowSizePlugin)
