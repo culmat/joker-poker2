@@ -80,12 +80,17 @@
                           </div>
                         </n-list-item>
                       </n-list>
-                      <n-button v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">
+                      <n-button v-if="!teamReady" v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">
                         <n-icon style="margin-right: 6px;">
                               <arrow-reset-20-filled/>
                                   </n-icon>
                         Reset</n-button>
-                      <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone">
+                      <n-button v-if="teamReady" v-on:click="shared.jp.command='start'" class="rightAligned">
+                        <n-icon style="margin-right: 6px;">
+                              <play-20-regular/>
+                                  </n-icon>
+                        Start</n-button>
+                      <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone || !estimateStarted">
                         <n-icon style="margin-right: 6px;">
                               <checkmark-12-filled/>
                                   </n-icon>
@@ -187,7 +192,7 @@
                <n-image style="width:100%; text-align: center; display:inline-block"
                   :src="'https://target.baloise.ch/byod-api/rest/qr/600/'+sessionURL"
                             /> <br/>
-                            You have {{mateCount}} mates.<br/>
+                            You have {{mateCount}} mate(s). <br/><span v-show="teamReady">The team is ready.</span><br/>
                             <n-a :href="sessionURL">{{sessionURL}}</n-a>
                              <n-tooltip trigger="hover" placement="top">
                                 <template #trigger>
@@ -224,7 +229,8 @@
   box-shadow: 4px 4px 8px 0 rgba(0, 0, 0, 0.2), 6px 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .rightAligned {
-  float:right; margin-left: 12px;
+  float:right; 
+  margin-left: 12px;
 }
 .n-avatar {
   filter: drop-shadow(1px 2px 1px #18a058);
@@ -240,7 +246,7 @@ import { IndexeddbPersistence } from "y-indexeddb"
 import { uuidv4 } from "lib0/random"
 import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
-import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular, ArrowReset20Filled} from '@vicons/fluent'
+import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular, ArrowReset20Filled, Play20Regular} from '@vicons/fluent'
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
@@ -266,14 +272,16 @@ interface User extends Indentified {
   icon: string,
   online: boolean,
   estimating: boolean,
+  ready: boolean,
   estimate: string
 }
 interface JokerPoker {
    title : string,
    values : string,
+   command : string,
 }
 
-const store = syncedStore({ 
+const store = syncedStore({
     jp : {} as JokerPoker,
     users : [] as User[]
   })
@@ -336,7 +344,8 @@ export default defineComponent({
     WifiOff20Regular,
     Checkmark12Filled,
     Copy16Regular,
-    ArrowReset20Filled
+    ArrowReset20Filled,
+    Play20Regular
     },
 
   data() {
@@ -347,7 +356,7 @@ export default defineComponent({
       initialised : false,
       currentPageId : defaultPage,
       defaultValues : "☕\n1\n2\n3\n5\n8\n13\n20\n40\n?",
-      loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimate : '' },
+      loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimate : '', ready :false },
       wsConnected : false,
       sessionURL : window.location.href.split('#')[0],
       navMenuOptions : [
@@ -403,6 +412,14 @@ export default defineComponent({
 
   computed: {
 
+    ready() : boolean {
+      return  !this.currentPageId.endsWith('settings') &&
+              this.myself.online && this.myself.estimating && this.myself.estimate == '' && this.myself.name != '' 
+    },
+    teamReady() : boolean {
+      return this.mateCount > 0 && this.estimatingUsers.filter(u=> !u.ready).length == 0
+    },
+
     insetStyle() : string {
       return  this.isSmallScreen ? "padding: 24px; background-color: #fafafc;" : "padding: 0px; background-color: white;"
     },
@@ -427,7 +444,7 @@ export default defineComponent({
       var users = this.shared.users
       var me = users.find(u => u.id == myID)
       if(me) return me
-      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true , estimating:true, estimate : ''}
+      me = {name :'',email :'', createdAt : new Date().getTime(), icon : '', id : myID, online : true , estimating:true, estimate : '', ready : false}
       users.push(me)
       // we have to search again to get the registered object. || me just keeps the compiler happy 
       return users.find(u => u.id == myID) || me
@@ -468,7 +485,11 @@ export default defineComponent({
       "shared.jp.title" : function(val) {
         document.title = val
       },
-        "myself" : function(val) {
+      "shared.jp.command" : function(command) {
+        if(command == 'start' && this.ready) this.navigate('~/estimate')
+        window.setTimeout(()=>{this.shared.jp.command = ''},444)
+      },
+      "myself" : function(val) {
           this.syncAwareness()
       },
       "myself.name" : function(val) {
@@ -497,6 +518,9 @@ export default defineComponent({
       },
       isSmallScreen(val) {
         this.collapsed = val
+      },
+      ready(val) {
+        this.myself.ready = val
       },
   },
 
