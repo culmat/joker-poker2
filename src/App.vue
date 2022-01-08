@@ -18,12 +18,23 @@
     {{myself.name}}
   </n-tooltip>
 
- <n-icon v-if="wsConnected" size="45" style="float:right; margin-top: -2px;" color="#18a058">
-   <wifi-120-regular/>
-  </n-icon>
- <n-icon v-if="!wsConnected" size="45" style="float:right; margin-top: -2px;" color="#d03050">
-   <wifi-off-20-regular/>
-  </n-icon>
+<n-tooltip trigger="hover" v-if="wsConnected">
+    <template #trigger>
+        <n-icon  size="45" style="float:right; margin-top: -2px;" color="#18a058">
+        <wifi-120-regular/>
+        </n-icon>
+    </template>
+    Online
+  </n-tooltip>
+  <n-tooltip trigger="hover" v-if="!wsConnected">
+    <template #trigger>   
+      <n-icon size="45" style="float:right; margin-top: -2px;" color="#d03050">
+        <wifi-off-20-regular/>
+        </n-icon>
+    </template>
+    Offline
+  </n-tooltip>
+
 
 
            </n-h1>
@@ -140,7 +151,7 @@
                               :src="u.icon"/>
                         </template>
 
-                        <n-grid cols="1 s:3" responsive="screen">
+                        <n-grid cols="1 s:4" responsive="screen">
                         <n-grid-item>
                           <span :style="u.id == myself.id? 'min-width: 88px; display: inline-block; font-weight:bolder;' : 'min-width: 88px; display: inline-block;'">{{u.name}}</span>
                         </n-grid-item>
@@ -151,12 +162,36 @@
                           </n-switch>
                         </n-grid-item>
                         <n-grid-item>
-                            <n-icon v-if="u.online" size="24" color="#18a058">
-                              <wifi-120-regular/>
-                              </n-icon>
-                            <n-icon v-if="!u.online" size="24" color="#d03050">
-                              <wifi-off-20-regular/>
-                              </n-icon>
+                            <n-tooltip trigger="hover" v-if="u.online">
+                              <template #trigger>
+                                  <n-icon size="24" color="#18a058">
+                                  <wifi-120-regular/>
+                                  </n-icon>
+                              </template>
+                              Online
+                            </n-tooltip>
+                            <n-tooltip trigger="hover" v-if="!u.online">
+                              <template #trigger>   
+                                 <n-icon size="24" color="#d03050">
+                                  <wifi-off-20-regular/>
+                                  </n-icon>
+                              </template>
+                              Offline
+                            </n-tooltip>
+                        </n-grid-item>
+                        <n-grid-item>
+                          <n-tooltip trigger="hover" :disabled="u.online || u.name != myself.name">
+                                <template #trigger>
+                                  <n-button circle :type="(u.online || u.name != myself.name) ? '':'error'" :disabled="u.online || u.name != myself.name" @click="deleteMate(u.id)">
+                                    <template #icon>
+                                    <n-icon>
+                                      <delete-16-regular/>
+                                      </n-icon>
+                                    </template>
+                                  </n-button>
+                              </template>
+                              Delete mate.
+                             </n-tooltip>
                         </n-grid-item>
                         </n-grid>
                       </n-list-item>
@@ -246,7 +281,9 @@ import { IndexeddbPersistence } from "y-indexeddb"
 import { uuidv4 } from "lib0/random"
 import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
-import { PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular, ArrowReset20Filled, Play20Regular} from '@vicons/fluent'
+import {  PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, 
+          Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular, ArrowReset20Filled, 
+          Play20Regular, PersonDelete20Regular, Delete16Regular} from '@vicons/fluent'
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
@@ -345,7 +382,9 @@ export default defineComponent({
     Checkmark12Filled,
     Copy16Regular,
     ArrowReset20Filled,
-    Play20Regular
+    Play20Regular,
+    PersonDelete20Regular,
+    Delete16Regular
     },
 
   data() {
@@ -525,6 +564,10 @@ export default defineComponent({
   },
 
   methods: {
+
+  deleteMate(id:string) {
+      filterArray(this.shared.users, (u) => u.id != id)
+  },  
 
   isSmall(width :number):boolean {
     return width < 640
