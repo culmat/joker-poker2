@@ -26,7 +26,7 @@
   </n-icon>
 
 
-           </n-h1> 
+           </n-h1>
     </n-layout-header>
     <n-layout style="height: 100%;"  id="mainContent" has-sider>
        <n-layout-sider
@@ -198,6 +198,9 @@
           </n-card> 
       </n-layout>
     </n-layout>
+    <n-layout-footer>
+        <n-progress type="line" :percentage="estimateProgress" :show-indicator="false" status="success" :height='1' :border-radius="0"/>
+      </n-layout-footer>
   </n-layout>
   <input type="text" value="" id="clipTmp" hidden/>
 </template>
