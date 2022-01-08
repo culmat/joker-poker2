@@ -26,7 +26,7 @@
     </template>
     Online
   </n-tooltip>
-  <n-tooltip trigger="hover" v-if="!wsConnected">
+  <n-tooltip trigger="hover" v-else>
     <template #trigger>   
       <n-icon size="45" style="float:right; margin-top: -2px;" color="#d03050">
         <wifi-off-20-regular/>
@@ -58,10 +58,6 @@
         </n-layout-sider>
 
       <n-layout :style="insetStyle" >
-        <n-card v-if="!initialised">
-             Loading<br/><br/>
-             <n-spin size="large" />
-        </n-card>
         <n-card v-if="initialised">
             <div v-if="currentPageId =='team/estimate'">
                 <div v-if="mateCount">
@@ -91,36 +87,36 @@
                           </div>
                         </n-list-item>
                       </n-list>
-                      <n-button v-if="!teamReady" v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">
-                        <n-icon style="margin-right: 6px;">
-                              <arrow-reset-20-filled/>
-                                  </n-icon>
-                        Reset</n-button>
                       <n-button v-if="teamReady" v-on:click="shared.jp.command='start'" class="rightAligned">
                         <n-icon style="margin-right: 6px;">
                               <play-20-regular/>
                                   </n-icon>
                         Start</n-button>
+                      <n-button v-else v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">
+                        <n-icon style="margin-right: 6px;">
+                              <arrow-reset-20-filled/>
+                                  </n-icon>
+                        Reset</n-button>
                       <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone || !estimateStarted">
                         <n-icon style="margin-right: 6px;">
                               <checkmark-12-filled/>
                                   </n-icon>
                         Reveal
                         </n-button>
-                    </div>
-                    <div v-if="!mateCount"> 
-                        You seem to be the first around here.<br/><br/>
-                         <n-button type="primary" v-on:click="navigate('qr')">
-                            <template #icon>
-                              <n-icon>
-                                <qr-code-20-filled/>
-                              </n-icon>
-                            </template>
-                            Invite some mates
-                         </n-button>
-                    </div>
+                </div>
+                <div v-else> 
+                    You seem to be the first around here.<br/><br/>
+                      <n-button type="primary" v-on:click="navigate('qr')">
+                        <template #icon>
+                          <n-icon>
+                            <qr-code-20-filled/>
+                          </n-icon>
+                        </template>
+                        Invite some mates
+                      </n-button>
+                </div>
             </div>
-            <div v-if="currentPageId =='~/estimate'">
+            <div v-else-if="currentPageId =='~/estimate'">
                 <n-list v-if="myself.estimating">
                     <n-list-item  v-for="value in values"  :key="value">
                       <template #prefix>
@@ -128,7 +124,7 @@
                       </template>
                     </n-list-item>
                   </n-list>
-                  <div v-if="!myself.estimating">
+                  <div v-else>
                     As observer you do not figure in the list of team mates and thus can not cast an estimate.<br/><br/>
                     <n-switch v-model:value="myself.estimating">
                       <template #checked>I am participating in estimation</template>
@@ -136,7 +132,7 @@
                     </n-switch>
                   </div>
             </div>
-          <div v-if="currentPageId =='team/settings'">
+          <div v-else-if="currentPageId =='team/settings'">
             <n-form>
               <n-form-item label="Name">
                 <n-input @keypress.enter="autoNavigate()" v-model:value="shared.jp.title" type="text" placeholder="Joker Poker" />
@@ -170,7 +166,7 @@
                               </template>
                               Online
                             </n-tooltip>
-                            <n-tooltip trigger="hover" v-if="!u.online">
+                            <n-tooltip trigger="hover" v-else>
                               <template #trigger>   
                                  <n-icon size="24" color="#d03050">
                                   <wifi-off-20-regular/>
@@ -208,7 +204,7 @@
                 </n-button>
             </n-form>
             </div>
-            <div v-if="currentPageId =='~/settings'">
+            <div v-else-if="currentPageId =='~/settings'">
             <n-form >
                    <n-form-item label="Name">
                     <n-input @keypress.enter="autoNavigate()"
@@ -223,7 +219,7 @@
                       </n-switch>
               </n-form>
             </div>
-            <div v-if="currentPageId =='qr'" style="width:100%; text-align: center; display:inline-block">
+            <div v-else-if="currentPageId =='qr'" style="width:100%; text-align: center; display:inline-block">
                <n-image style="width:100%; text-align: center; display:inline-block"
                   :src="'https://target.baloise.ch/byod-api/rest/qr/600/'+sessionURL"
                             /> <br/>
@@ -242,7 +238,11 @@
                               Copy to clipboard
                              </n-tooltip>
             </div>
-          </n-card> 
+          </n-card>
+          <n-card v-else>
+             Loading<br/><br/>
+             <n-spin size="large" />
+        </n-card> 
       </n-layout>
     </n-layout>
     <n-layout-footer>
