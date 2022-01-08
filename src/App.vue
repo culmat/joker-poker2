@@ -283,7 +283,7 @@ import * as awarenessProtocol from "y-protocols/awareness"
 import {Doc} from 'yjs'
 import {  PeopleSettings20Filled, PersonSettings20Filled, People20Filled, Person20Filled, QrCode20Filled, 
           Question20Filled, Wifi120Regular, WifiOff20Regular, Checkmark12Filled, Copy16Regular, ArrowReset20Filled, 
-          Play20Regular, PersonDelete20Regular, Delete16Regular} from '@vicons/fluent'
+          Play20Regular, Delete16Regular} from '@vicons/fluent'
 import{Initializer} from "./Initializer"
 import { NIcon } from "naive-ui"
 import {Md5} from 'ts-md5/dist/md5'
@@ -383,7 +383,6 @@ export default defineComponent({
     Copy16Regular,
     ArrowReset20Filled,
     Play20Regular,
-    PersonDelete20Regular,
     Delete16Regular
     },
 
