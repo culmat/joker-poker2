@@ -1,4 +1,4 @@
-## <img src="https://culmat.github.io/joker-poker/joker-poker-logo.svg" align="left" height="48" width="48" >
+## <img src="https://codeberg.org/culmat/joker-poker/raw/branch/main/public/joker-poker-logo.svg" align="left" height="48" width="48" >
 Joker Poker
 
 ... is a distributed online [estimation poker](https://en.wikipedia.org/wiki/Planning_poker) application crafted with ❤️.
