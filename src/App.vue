@@ -86,23 +86,25 @@
                               {{u.name}}
                           </div>
                         </n-list-item>
+                        <n-list-item style="margin-top:24px; padding-bottom:0px;">
+                            <n-button v-if="teamReady" v-on:click="shared.jp.command='start'" class="rightAligned">
+                              <n-icon style="margin-right: 6px;">
+                                    <play-20-regular/>
+                                        </n-icon>
+                              Start</n-button>
+                            <n-button v-else v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">
+                              <n-icon style="margin-right: 6px;">
+                                    <arrow-reset-20-filled/>
+                                        </n-icon>
+                              Reset</n-button>
+                            <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone || !estimateStarted">
+                              <n-icon style="margin-right: 6px;">
+                                    <checkmark-12-filled/>
+                                        </n-icon>
+                              Reveal
+                              </n-button>
+                        </n-list-item>
                       </n-list>
-                      <n-button v-if="teamReady" v-on:click="shared.jp.command='start'" class="rightAligned">
-                        <n-icon style="margin-right: 6px;">
-                              <play-20-regular/>
-                                  </n-icon>
-                        Start</n-button>
-                      <n-button v-else v-on:click="reset()" class="rightAligned" :disabled="!estimateDone">
-                        <n-icon style="margin-right: 6px;">
-                              <arrow-reset-20-filled/>
-                                  </n-icon>
-                        Reset</n-button>
-                      <n-button v-on:click="reveal()" class="rightAligned" :disabled="estimateDone || !estimateStarted">
-                        <n-icon style="margin-right: 6px;">
-                              <checkmark-12-filled/>
-                                  </n-icon>
-                        Reveal
-                        </n-button>
                 </div>
                 <div v-else> 
                     You seem to be the first around here.<br/><br/>
@@ -117,13 +119,11 @@
                 </div>
             </div>
             <div v-else-if="currentPageId =='~/estimate'">
-                <n-list v-if="myself.estimating">
-                    <n-list-item  v-for="value in values"  :key="value">
-                      <template #prefix>
+                <n-grid cols="1" y-gap="24" v-if="myself.estimating">
+                    <n-grid-item  v-for="value in values"  :key="value">
                         <n-button class="jcard" v-on:click="myself.estimate=value; navigate('team/estimate');"  strong="true">{{value}}</n-button>
-                      </template>
-                    </n-list-item>
-                  </n-list>
+                    </n-grid-item>
+                  </n-grid>
                   <div v-else>
                     As observer you do not figure in the list of team mates and thus can not cast an estimate.<br/><br/>
                     <n-switch v-model:value="myself.estimating">
