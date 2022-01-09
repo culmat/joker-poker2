@@ -220,8 +220,8 @@
               </n-form>
             </div>
             <div v-else-if="currentPageId =='qr'" style="width:100%; text-align: center; display:inline-block">
-               <n-image style="width:100%; text-align: center; display:inline-block"
-                  :src="'https://target.baloise.ch/byod-api/rest/qr/600/'+sessionURL"
+               <n-image object-fit="contain"
+                  :src="'https://target.baloise.ch/byod-api/rest/qr/'+(isSmallScreen?'300/':'600/')+sessionURL"
                             /> <br/>
                             You have {{mateCount}} mate(s). <br/><span v-show="teamReady">The team is ready.</span><br/>
                             <n-a :href="sessionURL">{{sessionURL}}</n-a>
