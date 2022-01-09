@@ -7,20 +7,20 @@ Joker Poker
 
 There are two important screens ...
 
-1) The ![](https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/account-multiple.svg) _Team_ screen shows all teammates and their votes, including yourself
-1) The ![](https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/account.svg) _Me_ screen shows your vote and allows you to change it
+1) The ![](https://raw.githubusercontent.com/microsoft/fluentui-system-icons/master/assets/People/SVG/ic_fluent_people_20_filled.svg) _Team Estimate_ screen shows all team mates and their estimates, including yourself
+1) The ![](https://raw.githubusercontent.com/microsoft/fluentui-system-icons/master/assets/Person/SVG/ic_fluent_person_20_filled.svg) _My Estimate_ screen shows your estimate and allows you to change it
 
 and two important events ...
 
-1) The _team starts voting_ - all votes are reset and hidden and all teammates are taken to the _Me_ screen
-1) _All teammates have voted_ - all votes are revealed and all teammates are taken to the _Team_ screen, you can still change your vote
+1) The _team starts estimating_ - all estimates are reset and hidden and all team mates are taken to the _My Estimate_ screen
+1) _All team mates have estimated_ - all estimates are revealed and all team mates are taken to the _Team Estimate_ screen, you can still change your estimate
  
-You can change between screens any time by clicking on your own vote or via the menu.
-If any teammate presses _Restart_ the _team starts voting_.
+You can change between screens any time by clicking on your own estimate or via the menu.
+If any teammate presses _Reset_ the _team starts estimating_.
 
-To make sure JokerPoker correctly detects that _all teammates have voted_ set yourself as _observer_ when you are not voting. You can do so from the ![](https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/cog.svg) _Settings_ screen
+To make sure JokerPoker correctly detects that _all team mates have estimated_ set yourself as _observer_ when you are not estimating. You can do so from the ![](https://raw.githubusercontent.com/microsoft/fluentui-system-icons/master/assets/Person%20Settings/SVG/ic_fluent_person_settings_20_filled.svg) _My Settings_ screen
 
-If needed a teammate can be send offline be anybody under _Settings_. 
+If needed a teammate can be made an _observer_ be anybody under ![](https://raw.githubusercontent.com/microsoft/fluentui-system-icons/master/assets/People%20Settings/SVG/ic_fluent_people_settings_20_filled.svg) _Team Settings_. 
 
 **Features**
 
@@ -31,7 +31,7 @@ If needed a teammate can be send offline be anybody under _Settings_.
    * all data is only stored locally in each participants browser
    * The [Yjs websocket connector](https://docs.yjs.dev/ecosystem/connection-provider/y-websocket) is only used for communication between participants (NAT traversal)
    * We maintain [an instance on glitch ](https://glitch.com/edit/#!/private-mango-chili) that uses an [unmodified fork of the Yjs socket connector](https://github.com/culmat/y-websocket). If you don't trust us, host your own service.
- * optional [gravatar](gravatar.com/) and [monsterID](https://www.splitbrain.org/projects/monsterid) integration to make your poker session a friendly place
+ * optional [gravatar/monsterID](https://gravatar.com/) integration to make your poker session a friendly place
  * super robust technology - it is built on Yjs Vue.js and Typescript. It will work on any static web host. 
 
 **Questions & Answers**
@@ -41,12 +41,15 @@ If needed a teammate can be send offline be anybody under _Settings_.
 
 **Don't love it?**
 
-[Change it](https://github.com/culmat/joker-poker/issues), or leave it for an alternative [poker-planning](https://github.com/topics/poker-planning), [planning-poker](https://github.com/topics/planning-poker) or [planningpoker](https://github.com/topics/planningpoker).
+[Change it](https://codeberg.org/culmat/joker-poker/issues), or leave it for an alternative [poker-planning](https://github.com/topics/poker-planning), [planning-poker](https://github.com/topics/planning-poker) or [planningpoker](https://github.com/topics/planningpoker).
 
 **History**
 
-This is a complete rewrite of the [original JokerPoker](https://github.com/culmat/).
-The main code repository is now  [@ Codeberg](https://codeberg.org/culmat/joker-poker/).
+This is a complete rewrite of the [original JokerPoker](https://github.com/culmat/joker-poker).
+
+While the user interface has changed from Vue2/Vuetify to Vue3/NaiveUI the main reason was the move from TogetherJS to YJs as communication layer that should scale much better and fix the [open issues in legacy JokerPoker](https://github.com/culmat/joker-poker/issues).
+
+The main repository and issue tracker is now  [@ Codeberg](https://codeberg.org/culmat/joker-poker/).
 
 ## Development
 
