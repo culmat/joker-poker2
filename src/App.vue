@@ -229,8 +229,11 @@
                                 <template #trigger>
                                     <n-button v-on:click="copyToClipBoard(sessionURL)" style="margin-left: 12px;">
                                     <template #icon>
-                                      <n-icon>
+                                      <n-icon v-if="clipIcon=='copy'">
                                         <copy-16-regular/>
+                                      </n-icon>
+                                      <n-icon v-else>
+                                        <checkmark-12-filled/>
                                       </n-icon>
                                     </template>
                                 </n-button>
@@ -300,6 +303,23 @@ if(pathname.length < 2) {
   id = pathname.split('#')[0]
 }
 
+class Toggle {
+    handle = 0
+    callFunction
+    milliseconds
+    constructor(call : any, milliseconds :number) {
+      this.callFunction = call
+      this.milliseconds = milliseconds
+    }
+    call() {
+      if(this.handle) window.clearTimeout(this.handle)
+      this.handle = window.setTimeout(this.callFunction, this.milliseconds)
+    }
+}
+
+const toggleClipIcon = new Toggle(()=>{
+  window.vm.clipIcon = 'copy'
+  },666)
 
 interface Indentified {id:string}
 interface User extends Indentified { 
@@ -397,6 +417,7 @@ export default defineComponent({
       loadingUser : {name :'Loading',email :'', createdAt : new Date().getTime(), icon : 'tail-spin.svg', id : 'loading', online : false, estimating:false, estimate : '', ready :false },
       wsConnected : false,
       sessionURL : window.location.href.split('#')[0],
+      clipIcon : 'copy',
       navMenuOptions : [
          {
             label: 'Team Estimate',
@@ -578,6 +599,8 @@ export default defineComponent({
 		copyText.select()
 		copyText.setSelectionRange(0, 99999); /* For mobile devices */
 		navigator.clipboard.writeText(copyText.value)
+    this.clipIcon='success'
+    toggleClipIcon.call()
   },
   
   onCollapsed(collapsed : boolean) {
