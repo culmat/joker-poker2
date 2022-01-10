@@ -37,7 +37,7 @@ If needed a teammate can be made an _observer_ be anybody under ![](https://raw.
 **Questions & Answers**
 
  * _How can we know what we estimate? Why can't I set a description / sync with my issue tracker <XYZ>?_ 
- * JokerPoker is meant to be used on a secondary ( mobile ) screen. We assume you use other communication channels like voice and screen sharing in parallel. You physical estimation poker cards don't show the topic either. [😗](https://en.wikipedia.org/wiki/KISS_principle)
+ * JokerPoker is meant to be used on a secondary ( mobile ) screen. We assume you use other communication channels like voice and screen sharing in parallel. Your physical estimation poker cards don't show the topic either. [😗](https://en.wikipedia.org/wiki/KISS_principle)
 
 **Don't love it?**
 
