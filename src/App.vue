@@ -2,7 +2,7 @@
        <n-layout>
     <n-layout-header style="height: 48px;  line-height: 48px; padding: 2px 24px 2px 24px;" bordered>
          <n-h1>
-           <n-gradient-text type="primary">
+           <n-gradient-text type="primary" style="max-width: calc(100% - 111px);">
            {{title}}
              </n-gradient-text> 
       <n-tooltip trigger="hover" placement="bottom-end">
