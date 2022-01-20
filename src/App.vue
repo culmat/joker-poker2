@@ -58,7 +58,7 @@
         </n-layout-sider>
 
       <n-layout :style="insetStyle" >
-        <n-card v-if="initialised">
+        <n-card v-if="initialised" :title="currentPageTitle">
             <div v-if="currentPageId =='team/estimate'">
                 <div v-if="mateCount">
                     <n-list>
@@ -470,6 +470,14 @@ export default defineComponent({
   },
 
   computed: {
+
+    currentPageTitle() : string {
+      switch(this.currentPageId) {
+        case '~/settings'     : return 'My settings'
+        case 'team/settings'  : return 'Team settings'
+        default : return ''
+      }
+    },
 
     ready() : boolean {
       return  !this.currentPageId.endsWith('settings') &&
