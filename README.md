@@ -3,7 +3,7 @@ Joker Poker
 
 ... is a distributed online [estimation poker](https://en.wikipedia.org/wiki/Planning_poker) application crafted with ❤️.
 
-**How it works**
+### How it works
 
 There are two important screens ...
 
@@ -22,7 +22,7 @@ To make sure JokerPoker correctly detects that _all team mates have estimated_ s
 
 If needed a teammate can be made an _observer_ be anybody under ![](https://raw.githubusercontent.com/microsoft/fluentui-system-icons/master/assets/People%20Settings/SVG/ic_fluent_people_settings_20_filled.svg) _Team Settings_. 
 
-**Features**
+### Features
 
  * super easy to use - no fluff, just planning poker
  * no login, minimal setup - <a href="https://joker-poker.onrender.com/"><img src="https://dabuttonfactory.com/button.png?t=create+a+team&f=Ubuntu&ts=14&tc=fff&hp=16&vp=5&c=6&bgt=unicolored&bgc=2ea44f&be=1"></a> with a single click
@@ -39,11 +39,11 @@ If needed a teammate can be made an _observer_ be anybody under ![](https://raw.
  * _How can we know what we estimate? Why can't I set a description / sync with my issue tracker <XYZ>?_ 
  * JokerPoker is meant to be used on a secondary ( mobile ) screen. We assume you use other communication channels like voice and screen sharing in parallel. Your physical estimation poker cards don't show the topic either. [😗](https://en.wikipedia.org/wiki/KISS_principle)
 
-**Don't love it?**
+### Don't love it?
 
 [Change it](https://codeberg.org/culmat/joker-poker/issues), or leave it for an alternative [poker-planning](https://github.com/topics/poker-planning), [planning-poker](https://github.com/topics/planning-poker) or [planningpoker](https://github.com/topics/planningpoker).
 
-**History**
+### History
 
 This is a complete rewrite of the [original JokerPoker](https://github.com/culmat/joker-poker).
 
