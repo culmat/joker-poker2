@@ -27,6 +27,7 @@ If needed a teammate can be made an _observer_ be anybody under ![](https://raw.
  * super easy to use - no fluff, just planning poker
  * no login, minimal setup - <a href="https://joker-poker.onrender.com/"><img src="https://dabuttonfactory.com/button.png?t=create+a+team&f=Ubuntu&ts=14&tc=fff&hp=16&vp=5&c=6&bgt=unicolored&bgc=2ea44f&be=1"></a> with a single click
  * mobile friendly - including integrated ![](https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/qrcode.svg) QR code generator 
+ * values can be configured
  * data privacy - in the spirit of [unhosted](https://unhosted.org/), Joker Poker is as *serverless* as possible
    * all data is only stored locally in each participants browser
    * The [Yjs websocket connector](https://docs.yjs.dev/ecosystem/connection-provider/y-websocket) is only used for communication between participants (NAT traversal)
