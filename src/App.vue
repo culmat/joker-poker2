@@ -221,7 +221,7 @@
             </div>
             <div v-else-if="currentPageId =='qr'" style="width:100%; text-align: center; display:inline-block">
                <n-image object-fit="contain"
-                  :src="'https://target.baloise.ch/byod-api/rest/qr/'+(isSmallScreen?'300/':'600/')+sessionURL"
+                  :src="'https://api.qrserver.com/v1/create-qr-code/?size='+(isSmallScreen?'300x300':'600x600')+'&data='+sessionURL"
                             /> <br/>
                             You have {{mateCount}} mate(s). <br/><span v-show="teamReady">The team is ready.</span><br/>
                             <n-a :href="sessionURL">{{sessionURL}}</n-a>
